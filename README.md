@@ -1,4 +1,3 @@
-﻿# Compiler-C-style-language
 # Phase 1: Lexical Analyzer (Scanner)
 
 ## Overview
