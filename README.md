@@ -19,7 +19,7 @@ The scanner employs Regular Expressions to accurately identify and categorize th
     * **Strings:** Sequences of characters enclosed in double quotes. The scanner handles basic escape sequences (like `\n`) and ensures double quotes aren't allowed inside the string itself.
 
 ### 2. Operators & Punctuation
-The scanner correctly tokenizes arithmetic (`+`, `-`, `*`, `/`), relational (`==`, `>`, `>=`, `<`, `<=`, `!=`), logical (`&&`, `||`, `!`), and pointer-specific operators (`^`, `&`). Note: the logical OR operator is represented by `+` in our regular expressions configuration, replacing the standard `|`. It also captures brackets, braces, commas, and semicolons necessary for parsing.
+The scanner correctly tokenizes arithmetic (`+`, `-`, `*`, `/`), relational (`==`, `>`, `>=`, `<`, `<=`, `!=`), logical (`&&`, `||`, `!`), and pointer-specific operators (`^`, `&`). It also captures brackets, braces, commas, and semicolons necessary for parsing.
 
 ### 3. Whitespace & Comment Handling
 * **Whitespace:** Spaces, tabs, and newlines are recognized and safely ignored, as they do not affect the logic of the target language.
