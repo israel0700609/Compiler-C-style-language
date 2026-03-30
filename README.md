@@ -34,3 +34,11 @@ This repository follows a structured branching strategy:
 * `main`: Stable, fully integrated, and tested compiler releases.
 * `dev`: Integration branch for merging completed features.
 * `feat/*`: Feature branches for specific components (e.g., `feat/scanner`, `feat/parser`, `feat/ast`).
+
+## Team & Collaboration
+This compiler is a joint academic project developed by a team of three Software Engineering students as part of our Compilation course. We simulate a real-world development environment by collaborating closely and dividing responsibilities.
+
+Our collaborative workflow includes:
+* **Task Distribution:** Splitting the workload logically across the compilation pipeline (e.g., separating Lex rules, Yacc grammar, and AST logic).
+* **Version Control (Git):** Utilizing feature branches, peer code reviews, and structured merges into a central `dev` branch to prevent conflicts and ensure code stability.
+* **Problem Solving:** Tackling complex shift/reduce conflicts and architectural decisions as a team.
