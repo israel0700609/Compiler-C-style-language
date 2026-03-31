@@ -1,9 +1,11 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 /* חיבור היאק בהמשך */
 int line_number = 1;
 /* משתנה גלובלי למען מעקב אחרי מספרי שורות ( זה עוזר להודעות שגיאה אבל לא בטוח נצטרך את זה  אבל שיהיה) */
+
 %}
 
 /* הגדרות של פלקס - noyywrap אומר פשוט מתי שסתיים לקרוא את הקובץ תעצור */
@@ -34,14 +36,14 @@ HEX        [0-9a-fA-F]
 \n              { line_number++; }
 
 /* --- מילות מפתח מתוך מסמך השפה --- */
-"bool"          { return BOOL_TYPE; }
-"char"          { return CHAR_TYPE; }
-"int"           { return INT_TYPE; }
-"real"          { return REAL_TYPE; }
-"string"        { return STRING_TYPE; }
-"int*"          { return INTPTR_TYPE; }
-"char*"         { return CHARPTR_TYPE; }
-"real*"         { return REALPTR_TYPE; }
+"bool"          { return BOOL; }
+"char"          { return CHAR; }
+"int"           { return INT; }
+"real"          { return REAL; }
+"string"        { return STRING; }
+"int*"          { return INTPTR; }
+"char*"         { return CHARPTR; }
+"real*"         { return REALPTR; }
 "if"            { return IF; }
 "else"          { return ELSE; }
 "while"         { return WHILE; }
@@ -50,25 +52,60 @@ HEX        [0-9a-fA-F]
 "func"          { return FUNC; }
 "proc"          { return PROC; }
 "return"        { return RETURN; }
-"null"          { return NULL_PTR; }
+"null"          { return NULL; }
+
 
 /* --- ליטרלים (Literals) --- */
 
 /* בוליאני */
-"true"|"false"  { return BOOL_LITERAL; }
+"true"          { return TRUE_LITERAL; }
+"false"         { return FALSE_LITERAL; }
+
 
 /* מספרים שלמים: עשרוני (לא מתחיל ב-0 אלא אם הוא רק 0) או הקסדצימלי */
-0|[1-9]{DIGIT}* { return INT_LITERAL; }
-0[xX]{HEX}+     { return HEX_LITERAL; }
+0|[1-9]{DIGIT}* { 
+    yylval.int_val = atoi(yytext);    
+    return INT_LITERAL;
+}
 
+0[xX]{HEX}+     { 
+    yylval.int_val = strtol(yytext + 2, NULL, 16);
+    
+    return HEX_LITERAL; 
+}
 /* מספרים ממשיים: תומך בנקודה עשרונית ובכתיב מדעי עם E/e, וגם סימני +/- */
-[-+]?([0-9]+\.[0-9]*|\.[0-9]+)([eE][-+]?[0-9]+)?|[-+]?[0-9]+[eE][-+]?[0-9]+ { return REAL_LITERAL; }
+[-+]?([0-9]+\.[0-9]*|\.[0-9]+)([eE][-+]?[0-9]+)?|[-+]?[0-9]+[eE][-+]?[0-9]+ { 
+
+    yylval.real_val = atof(yytext);    
+    return REAL_LITERAL; }
 
 /* מחרוזות: מוקפות במרכאות כפולות, לא נשברות שורה, ותומכות בתווי Escape */
-\"([^\"\n\\]|\\.)*\" { return STRING_LITERAL; }
+\"([^\"\n\\]|\\.)*\" { 
+    int len = yyleng - 2;
+    char* str = (char*)malloc(len + 1);
+    strncpy(str, yytext + 1, len);
+    str[len] = '\0';
+    yylval.str_val = str;
+    return STRING_LITERAL; 
+}
 
 /* תווים (char): מוקפים בגרש בודד, תומכים בתווי Escape */
-\'([^'\n\\]|\\.)\'   { return CHAR_LITERAL; }
+\'([^'\n\\]|\\.)\'   { 
+    if(yytext[1] != '\\')
+        yylval.char_val = yytext[1];
+    else{
+        switch(yytext[2]){
+            case 'n' : yylval.char_val = '\n';
+            case 't': yylval.char_val = '\t'; break;
+            case 'r': yylval.char_val = '\r'; break;
+            case '\\': yylval.char_val = '\\'; break;
+            case '\'': yylval.char_val = '\''; break;
+            default:  yylval.char_val = yytext[2]; break; 
+        }
+    }
+    return CHAR_LITERAL;
+
+ }
 
 /* מזהים (Identifiers): מתחיל באות, ואז אותיות, ספרות או קו תחתון */
 {ALPHA}({ALPHA}|{DIGIT}|"_")* { return IDENTIFIER; }
@@ -96,3 +133,7 @@ HEX        [0-9a-fA-F]
 }
 
 %%
+
+int yywrap(){
+    return 1;
+}
