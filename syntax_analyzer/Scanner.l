@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* חשוב: כשיהיה לך קובץ Yacc, חובה להוסיף כאן את השורה הבאה: */
-/* #include "y.tab.h" */
+#include "y.tab.h" 
 
 %}
 
@@ -46,13 +45,19 @@ HEX        [0-9a-fA-F]
 "func"          { return FUNC; }
 "proc"          { return PROC; }
 "return"        { return RETURN; }
-"null"          { return NULL; }
+"null"          { return NULL_TOK; }
 
  /* --- ליטרלים (Literals) --- */
 
  /* בוליאני */
-"true"          { return TRUE_LITERAL; }
-"false"         { return FALSE_LITERAL; }
+"true"          { 
+    yylval.int_val = 1;
+    return TRUE_LITERAL; 
+}
+"false"         { 
+    yylval.int_val = 0;
+    return FALSE_LITERAL; 
+}
 
  /* מספרים שלמים: עשרוני או הקסדצימלי */
 0|[1-9]{DIGIT}* { 
@@ -99,7 +104,10 @@ HEX        [0-9a-fA-F]
 }
 
  /* מזהים (Identifiers) */
-{ALPHA}({ALPHA}|{DIGIT}|"_")* { return IDENTIFIER; }
+{ALPHA}({ALPHA}|{DIGIT}|"_")* { 
+    yylval.str_val = (char*)malloc(strlen(yytext) + 1);
+    strcpy(yylval.str_val, yytext);
+    return IDENTIFIER; }
 
  /* --- אופרטורים ותווים מיוחדים --- */
 "=="            { return EQ; }
