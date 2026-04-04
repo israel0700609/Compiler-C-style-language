@@ -170,6 +170,3 @@ These are the main outcomes of the current work in the syntax analyzer:
 - The parser still depends on the missing expression and conditional grammar pieces from the broader project work.
 - The current file is focused on structure and AST assembly, not evaluation.
 
-## Suggested Commit Message
-
-`fix syntax analyzer AST typing and token handling`
