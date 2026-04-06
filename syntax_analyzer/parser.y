@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ast/ast.h"
+#include "../ast/ast.h"
 
 extern int yylineno;
 extern char* yytext;
@@ -36,7 +36,7 @@ void yyerror(const char* s);
 %token <str_val> IDENTIFIER 
 %token EQ NEQ GTE LTE AND OR 
 
-%type <node_val> program functions function proc parameter_list non_empty_param_list type body_with_return body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list if_sttmnt else_op block_op for_sttmnt while_sttmnt block_sttmnt return_sttmnt expression
+%type <node_val> program functions function proc parameter_list non_empty_param_list type body_with_return body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list if_sttmnt else_op for_sttmnt while_sttmnt block_sttmnt return_sttmnt expression
 
 
 /* Precedence */
@@ -109,11 +109,12 @@ parameter_list:
 
 non_empty_param_list:
     IDENTIFIER ',' non_empty_param_list {
-        Node* type = $3->left->right;
+        Node* original_type = $3->left->right;
+        Node* cloned_type = createNode(original_type->type, original_type->value);
+        
         Node* param = createNode("PARAM", NULL);
-
         addLeftChild(param, createNode("IDENTIFIER", $1));
-        addRightChild(param, type);
+        addRightChild(param, cloned_type); /* משתמשים בשיבוט! */
 
         $$ = createNode("PARAM_LIST", NULL);
         addLeftChild($$, param);
@@ -156,11 +157,8 @@ type:
 body_with_return:
     body return_sttmnt {
         $$ = createNode("BODY", NULL);
-        addLeftChild($$, $1); 
-        addRightChild($$, $2); 
-    }
-    | return_sttmnt {
-        $$ = $1;
+        addLeftChild($$, $1);
+        addRightChild($$, $2);
     }
     ;
 body:
@@ -201,7 +199,6 @@ statement:
     | block_sttmnt {$$ = $1;}
     | for_sttmnt {$$ = $1;}
     | while_sttmnt {$$ = $1;}
-    | return_sttmnt {$$ = $1;}
     ;
 assign_sttmnt:
     lhs '=' rhs ';'{
@@ -272,17 +269,17 @@ decl_sttmnt:
 
 var_decl_list:
     IDENTIFIER ',' var_decl_list {
-        Node* type = $3->left->right;
+        Node* original_type = $3->left->right;
+        Node* cloned_type = createNode(original_type->type, original_type->value);
+        
         Node* id = createNode("VAR_DECL", NULL);
-
         addLeftChild(id, createNode("IDENTIFIER", $1));
-        addRightChild(id, type);
+        addRightChild(id, cloned_type); /* משתמשים בשיבוט! */
 
         $$ = createNode("VAR_LIST", NULL);
         addLeftChild($$, id);
         addRightChild($$, $3);
-    }
-    |
+    }    |
     IDENTIFIER ':' type {
         Node* id = createNode("VAR_DECL", NULL);
         
@@ -325,34 +322,40 @@ non_empty_arguments_list:
     ;
 
 if_sttmnt:
-    IF '(' expression ')' block_op else_op {
+    IF '(' expression ')' statement else_op {
         if ($6 == NULL) {
             $$ = createNode("IF_STTMNT", NULL);
-            addLeftChild($$, $3);
-            addRightChild($$, $5);
+            addLeftChild($$, $3); 
+            
+            Node* then_block = createNode("THEN", NULL);
+            addLeftChild(then_block, $5);
+            addRightChild($$, then_block);
+            
         } else {
             $$ = createNode("IF_ELSE_STTMNT", NULL);
+            
+            Node* then_block = createNode("THEN", NULL);
+            addLeftChild(then_block, $5);
+            
+            Node* else_block = createNode("ELSE", NULL);
+            addLeftChild(else_block, $6);
+            
             Node* branches = createNode("IF_BRANCHES", NULL);
-            addLeftChild(branches, $5);
-            addRightChild(branches, $6);
+            addLeftChild(branches, then_block);
+            addRightChild(branches, else_block);
+            
             addLeftChild($$, $3);
             addRightChild($$, branches);
         }
     }
     ;
-
 else_op:
-    ELSE block_op { 
-        $$ = $2; 
+    ELSE statement {
+        $$ = $2;
     }
-    | { 
-        $$ = NULL; 
+    | {
+        $$ = NULL;
     }
-    ;
-
-block_op:
-    '{' body '}' { $$ = $2; }
-    | statement  { $$ = $1; }
     ;
 
 for_sttmnt:

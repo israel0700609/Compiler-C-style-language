@@ -1,6 +1,7 @@
 proc foo(x, y, z: int; f: real){
 if (x>y) {
 x = x + f;
+if(x < y){}
 }
 else {
 y = x + y + z;
@@ -9,5 +10,5 @@ z = f;
 }
 }
 func goo() return char{
-return ‘a’;
+return 'a';
 }
