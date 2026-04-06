@@ -326,22 +326,34 @@ non_empty_arguments_list:
     ;
 
 if_sttmnt:
-    IF '(' expression ')' statement %prec IFX {
-        $$ = createNode("IF_STTMNT",NULL);
-        addLeftChild($$,$3);
-        addRightChild($$,$5);
+    IF '(' expression ')' block_op else_op {
+        if ($6 == NULL) {
+            $$ = createNode("IF_STTMNT", NULL);
+            addLeftChild($$, $3);
+            addRightChild($$, $5);
+        } else {
+            $$ = createNode("IF_ELSE_STTMNT", NULL);
+            Node* branches = createNode("IF_BRANCHES", NULL);
+            addLeftChild(branches, $5);
+            addRightChild(branches, $6);
+            addLeftChild($$, $3);
+            addRightChild($$, branches);
+        }
     }
     ;
 
-if_else_sttmnt:
-    IF '(' expression ')' statement ELSE statement {
-        $$ = createNode("IF_ELSE_STTMNT",NULL);
-        Node* branches = createNode("IF_BRANCHES",NULL);
-        addLeftChild(branches,$5);
-        addRightChild(branches,$7);
-        addLeftChild($$,$3);
-        addRightChild($$,branches);
+else_op:
+    ELSE block_op { 
+        $$ = $2; 
     }
+    | { 
+        $$ = NULL; 
+    }
+    ;
+
+block_op:
+    '{' body '}' { $$ = $2; }
+    | statement  { $$ = $1; }
     ;
 
 for_sttmnt:
