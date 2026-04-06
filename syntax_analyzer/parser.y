@@ -406,7 +406,7 @@ int main() {
     if (yyparse() == 0) {
         printf("Success!\n\n");
         printf("=== Abstract Syntax Tree ===\n");
-        printTree(root, 0, 1);
+        printTree(root);
         freeTree(root);
     } else {
         printf("Failed.\n");
