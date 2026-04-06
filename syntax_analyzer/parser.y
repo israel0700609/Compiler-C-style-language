@@ -6,6 +6,7 @@
 
 extern int yylineno;
 extern char* yytext;
+extern Node* root;
 
 int yylex();
 void yyerror(const char* s);
