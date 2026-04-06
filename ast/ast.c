@@ -5,11 +5,30 @@
 
 Node *root = NULL;
 
+static void printChildren(Node *node, const char *prefix);
+
+static char *duplicateString(const char *src)
+{
+    if (!src)
+        return NULL;
+
+    size_t len = strlen(src) + 1;
+    char *dst = (char *)malloc(len);
+    if (!dst)
+        return NULL;
+
+    memcpy(dst, src, len);
+    return dst;
+}
+
 Node *createNode(const char *type, const char *value)
 {
     Node *node = (Node *)malloc(sizeof(Node));
-    node->type = type ? strdup(type) : NULL;
-    node->value = value ? strdup(value) : NULL;
+    if (!node)
+        return NULL;
+
+    node->type = duplicateString(type);
+    node->value = duplicateString(value);
     node->left = NULL;
     node->right = NULL;
     return node;
@@ -32,16 +51,20 @@ static void printTreeHelper(Node *node, const char *prefix, int is_right)
     if (!node)
         return;
 
+    const char *nodeType = node->type ? node->type : "<null-type>";
+
     printf("%s", prefix);
     printf("%s", is_right ? "└── " : "├── ");
 
     if (node->value)
-        printf("%s(%s)\n", node->type, node->value);
+        printf("%s(%s)\n", nodeType, node->value);
     else
-        printf("%s\n", node->type);
+        printf("%s\n", nodeType);
 
     int plen = strlen(prefix);
     char *new_prefix = (char *)malloc(plen + 8);
+    if (!new_prefix)
+        return;
     strcpy(new_prefix, prefix);
     strcat(new_prefix, is_right ? "    " : "│   ");
 
@@ -75,10 +98,12 @@ void printTree(Node *node)
         return;
     }
 
+    const char *nodeType = node->type ? node->type : "<null-type>";
+
     if (node->value)
-        printf("%s(%s)\n", node->type, node->value);
+        printf("%s(%s)\n", nodeType, node->value);
     else
-        printf("%s\n", node->type);
+        printf("%s\n", nodeType);
 
     printChildren(node, "");
 }
