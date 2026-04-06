@@ -1,7 +1,8 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>  
+#include <string.h>
+#include "ast.h"
 
 extern int yylineno;
 extern char* yytext;
@@ -34,7 +35,7 @@ void yyerror(const char* s);
 %token <str_val> IDENTIFIER 
 %token EQ NEQ GTE LTE AND OR 
 
-%type <node_val> program functions function proc parameter_list non_empty_param_list type body_with_return body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list while_sttmnt block_sttmnt return_sttmnt
+%type <node_val> program functions function proc parameter_list non_empty_param_list type body_with_return body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list if_sttmnt if_else_sttmnt for_sttmnt while_sttmnt block_sttmnt return_sttmnt expression
 
 
 /* Precedence */
@@ -79,7 +80,7 @@ functions:
   ;
 
 function:
-    FUNC IDENTIFIER '(' parameter_list ')' RETURN TYPE '{' body_with_return '}' {
+    FUNC IDENTIFIER '(' parameter_list ')' RETURN type '{' body_with_return '}' {
         $$ = createNode("FUNCTION", NULL);
         Node* idNode = createNode("IDENTIFIER", $2);
         addLeftChild(idNode, $4);
@@ -231,7 +232,36 @@ rhs:
         $$ = $1;
     }
     | STRING_LITERAL {
-        $$ = createNode("STRING_LITERAL", $1);    }
+        $$ = createNode("STRING_LITERAL", $1);
+    }
+    ;
+
+expression:
+    expression OR expression        { $$ = createNode("OR",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression AND expression     { $$ = createNode("AND", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression EQ expression      { $$ = createNode("EQ",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression NEQ expression     { $$ = createNode("NEQ", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '>' expression     { $$ = createNode("GT",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '<' expression     { $$ = createNode("LT",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression GTE expression     { $$ = createNode("GTE", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression LTE expression     { $$ = createNode("LTE", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '+' expression     { $$ = createNode("ADD", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '-' expression     { $$ = createNode("SUB", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '*' expression     { $$ = createNode("MUL", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '/' expression     { $$ = createNode("DIV", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | '!' expression                { $$ = createNode("NOT",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
+    | '-' expression %prec '!'      { $$ = createNode("NEG",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
+    | '^' expression                { $$ = createNode("DEREF",NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
+    | '&' IDENTIFIER                { $$ = createNode("ADDR_OF",NULL); addLeftChild($$,createNode("IDENTIFIER",$2)); addRightChild($$,NULL); }
+    | '(' expression ')'            { $$ = $2; }
+    | IDENTIFIER '[' expression ']' { $$ = createNode("ARRAY_ACCESS",NULL); addLeftChild($$,createNode("IDENTIFIER",$1)); addRightChild($$,$3); }
+    | IDENTIFIER                    { $$ = createNode("IDENTIFIER",$1); }
+    | INT_LITERAL                   { char buf[32]; sprintf(buf,"%d",$1);  $$ = createNode("INT_LITERAL",  buf); }
+    | REAL_LITERAL                  { char buf[64]; sprintf(buf,"%g",$1);  $$ = createNode("REAL_LITERAL", buf); }
+    | CHAR_LITERAL                  { char buf[4];  buf[0]=$1; buf[1]='\0'; $$ = createNode("CHAR_LITERAL",buf); }
+    | TRUE_LITERAL                  { $$ = createNode("BOOL_LITERAL","true"); }
+    | FALSE_LITERAL                 { $$ = createNode("BOOL_LITERAL","false"); }
+    | NULL_TOK                      { $$ = createNode("NULL",NULL); }
     ;
 
 
@@ -295,7 +325,51 @@ non_empty_arguments_list:
     }
     ;
 
-while_sttmnt: 
+if_sttmnt:
+    IF '(' expression ')' block_sttmnt {
+        $$ = createNode("IF_STTMNT",NULL);
+        addLeftChild($$,$3);
+        addRightChild($$,$5);
+    }
+    ;
+
+if_else_sttmnt:
+    IF '(' expression ')' block_sttmnt ELSE block_sttmnt {
+        $$ = createNode("IF_ELSE_STTMNT",NULL);
+        Node* branches = createNode("IF_BRANCHES",NULL);
+        addLeftChild(branches,$5);
+        addRightChild(branches,$7);
+        addLeftChild($$,$3);
+        addRightChild($$,branches);
+    }
+    ;
+
+for_sttmnt:
+    FOR '(' lhs '=' rhs ';' expression ';' lhs '=' rhs ')' block_sttmnt {
+        $$ = createNode("FOR_STTMNT",NULL);
+
+        Node* init = createNode("FOR_INIT",NULL);
+        addLeftChild(init,$3);
+        addRightChild(init,$5);
+
+        Node* update = createNode("FOR_UPDATE",NULL);
+        addLeftChild(update,$9);
+        addRightChild(update,$11);
+
+        Node* cond_update = createNode("FOR_COND_UPDATE",NULL);
+        addLeftChild(cond_update,$7);
+        addRightChild(cond_update,update);
+
+        Node* header = createNode("FOR_HEADER",NULL);
+        addLeftChild(header,init);
+        addRightChild(header,cond_update);
+
+        addLeftChild($$,header);
+        addRightChild($$,$13);
+    }
+    ;
+
+while_sttmnt:
     WHILE '(' expression ')' block_sttmnt {
         $$ = createNode("WHILE_STTMNT",NULL);
         addLeftChild($$,$3);
@@ -329,7 +403,10 @@ return_sttmnt:
 int main() {
     printf("Starting Parser...\n");
     if (yyparse() == 0) {
-        printf("Success!\n");
+        printf("Success!\n\n");
+        printf("=== Abstract Syntax Tree ===\n");
+        printTree(root, 0, 1);
+        freeTree(root);
     } else {
         printf("Failed.\n");
     }
