@@ -34,7 +34,7 @@ void yyerror(const char* s);
 %token <str_val> IDENTIFIER 
 %token EQ NEQ GTE LTE AND OR 
 
-%type <node_val> program functions function proc parameter_list non_empty_param_list type body_with_return body statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list while_sttmnt block_sttmnt return_sttmnt
+%type <node_val> program functions function proc parameter_list non_empty_param_list type body_with_return body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list while_sttmnt block_sttmnt return_sttmnt
 
 
 /* Precedence */
@@ -161,10 +161,26 @@ body_with_return:
         $$ = $1;
     }
     ;
-body: 
-    statements {$$ = $1;}
+body:
+    declarations statements {
+        $$ = createNode("BODY", NULL);
+        addLeftChild($$, $1);
+        addRightChild($$, $2);
+    }
+    | declarations { $$ = $1; }
+    | statements   { $$ = $1; }
     | {$$ = NULL;}
     ;
+
+declarations:
+    declarations decl_sttmnt {
+        $$ = createNode("DECLARATIONS", NULL);
+        addLeftChild($$, $1);
+        addRightChild($$, $2);
+    }
+    | decl_sttmnt { $$ = $1; }
+    ;
+
 statements:
     statements statement {
         $$ = createNode("STATEMENTS",NULL);
@@ -178,7 +194,6 @@ statements:
     ;
 statement:
     assign_sttmnt {$$ = $1;}
-    | decl_sttmnt {$$ = $1;}
     | call_sttmnt {$$ = $1;}
     | if_sttmnt {$$ = $1;}
     | if_else_sttmnt {$$ = $1;}
