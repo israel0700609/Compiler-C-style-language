@@ -237,31 +237,31 @@ rhs:
     ;
 
 expression:
-    expression OR expression        { $$ = createNode("OR",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression AND expression     { $$ = createNode("AND", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression EQ expression      { $$ = createNode("EQ",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression NEQ expression     { $$ = createNode("NEQ", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression '>' expression     { $$ = createNode("GT",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression '<' expression     { $$ = createNode("LT",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression GTE expression     { $$ = createNode("GTE", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression LTE expression     { $$ = createNode("LTE", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression '+' expression     { $$ = createNode("ADD", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression '-' expression     { $$ = createNode("SUB", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression '*' expression     { $$ = createNode("MUL", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | expression '/' expression     { $$ = createNode("DIV", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
-    | '!' expression                { $$ = createNode("NOT",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
-    | '-' expression %prec '!'      { $$ = createNode("NEG",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
-    | '^' expression                { $$ = createNode("DEREF",NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
-    | '&' IDENTIFIER                { $$ = createNode("ADDR_OF",NULL); addLeftChild($$,createNode("IDENTIFIER",$2)); addRightChild($$,NULL); }
-    | '(' expression ')'            { $$ = $2; }
-    | IDENTIFIER '[' expression ']' { $$ = createNode("ARRAY_ACCESS",NULL); addLeftChild($$,createNode("IDENTIFIER",$1)); addRightChild($$,$3); }
-    | IDENTIFIER                    { $$ = createNode("IDENTIFIER",$1); }
-    | INT_LITERAL                   { char buf[32]; sprintf(buf,"%d",$1);  $$ = createNode("INT_LITERAL",  buf); }
-    | REAL_LITERAL                  { char buf[64]; sprintf(buf,"%g",$1);  $$ = createNode("REAL_LITERAL", buf); }
-    | CHAR_LITERAL                  { char buf[4];  buf[0]=$1; buf[1]='\0'; $$ = createNode("CHAR_LITERAL",buf); }
-    | TRUE_LITERAL                  { $$ = createNode("BOOL_LITERAL","true"); }
-    | FALSE_LITERAL                 { $$ = createNode("BOOL_LITERAL","false"); }
-    | NULL_TOK                      { $$ = createNode("NULL",NULL); }
+    expression OR expression { $$ = createNode("OR",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression AND expression { $$ = createNode("AND", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression EQ expression  { $$ = createNode("EQ",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression NEQ expression { $$ = createNode("NEQ", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '>' expression { $$ = createNode("GT",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '<' expression { $$ = createNode("LT",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression GTE expression { $$ = createNode("GTE", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression LTE expression { $$ = createNode("LTE", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '+' expression { $$ = createNode("ADD", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '-' expression { $$ = createNode("SUB", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '*' expression { $$ = createNode("MUL", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | expression '/' expression { $$ = createNode("DIV", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+    | '!' expression { $$ = createNode("NOT",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
+    | '-' expression %prec '!'{ $$ = createNode("NEG",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
+    | '^' expression { $$ = createNode("DEREF",NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
+    | '&' IDENTIFIER { $$ = createNode("ADDR_OF",NULL); addLeftChild($$,createNode("IDENTIFIER",$2)); addRightChild($$,NULL); }
+    | '(' expression ')' { $$ = $2; }
+    | IDENTIFIER '[' expression ']'{ $$ = createNode("ARRAY_ACCESS",NULL); addLeftChild($$,createNode("IDENTIFIER",$1)); addRightChild($$,$3); }
+    | IDENTIFIER { $$ = createNode("IDENTIFIER",$1); }
+    | INT_LITERAL { char buf[32]; sprintf(buf,"%d",$1);  $$ = createNode("INT_LITERAL",  buf); }
+    | REAL_LITERAL { char buf[64]; sprintf(buf,"%g",$1);  $$ = createNode("REAL_LITERAL", buf); }
+    | CHAR_LITERAL { char buf[4];  buf[0]=$1; buf[1]='\0'; $$ = createNode("CHAR_LITERAL",buf); }
+    | TRUE_LITERAL { $$ = createNode("BOOL_LITERAL","true"); }
+    | FALSE_LITERAL { $$ = createNode("BOOL_LITERAL","false"); }
+    | NULL_TOK { $$ = createNode("NULL",NULL); }
     ;
 
 
