@@ -204,7 +204,6 @@ statement:
     | while_sttmnt {$$ = $1;}
     | return_sttmnt {$$ = $1;}
     ;
-    
 assign_sttmnt:
     lhs '=' rhs ';'{
         $$ = createNode("ASSIGN_STTMNT",NULL);
@@ -327,7 +326,7 @@ non_empty_arguments_list:
     ;
 
 if_sttmnt:
-    IF '(' expression ')' block_sttmnt {
+    IF '(' expression ')' statement %prec IFX {
         $$ = createNode("IF_STTMNT",NULL);
         addLeftChild($$,$3);
         addRightChild($$,$5);
@@ -335,7 +334,7 @@ if_sttmnt:
     ;
 
 if_else_sttmnt:
-    IF '(' expression ')' block_sttmnt ELSE block_sttmnt {
+    IF '(' expression ')' statement ELSE statement {
         $$ = createNode("IF_ELSE_STTMNT",NULL);
         Node* branches = createNode("IF_BRANCHES",NULL);
         addLeftChild(branches,$5);
@@ -346,7 +345,7 @@ if_else_sttmnt:
     ;
 
 for_sttmnt:
-    FOR '(' lhs '=' rhs ';' expression ';' lhs '=' rhs ')' block_sttmnt {
+    FOR '(' lhs '=' rhs ';' expression ';' lhs '=' rhs ')' statement {
         $$ = createNode("FOR_STTMNT",NULL);
 
         Node* init = createNode("FOR_INIT",NULL);
@@ -371,7 +370,7 @@ for_sttmnt:
     ;
 
 while_sttmnt:
-    WHILE '(' expression ')' block_sttmnt {
+    WHILE '(' expression ')' statement {
         $$ = createNode("WHILE_STTMNT",NULL);
         addLeftChild($$,$3);
         addRightChild($$,$5);
@@ -380,10 +379,6 @@ while_sttmnt:
 block_sttmnt:
     '{' body '}' {
         $$ = $2;
-    }
-    |
-    statement {
-        $$ = $1;
     }
     ;
 
