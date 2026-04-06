@@ -36,7 +36,7 @@ void yyerror(const char* s);
 %token <str_val> IDENTIFIER 
 %token EQ NEQ GTE LTE AND OR 
 
-%type <node_val> program functions function proc parameter_list non_empty_param_list type body_with_return body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list if_sttmnt if_else_sttmnt for_sttmnt while_sttmnt block_sttmnt return_sttmnt expression
+%type <node_val> program functions function proc parameter_list non_empty_param_list type body_with_return body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list if_sttmnt else_op block_op for_sttmnt while_sttmnt block_sttmnt return_sttmnt expression
 
 
 /* Precedence */
@@ -198,7 +198,6 @@ statement:
     assign_sttmnt {$$ = $1;}
     | call_sttmnt {$$ = $1;}
     | if_sttmnt {$$ = $1;}
-    | if_else_sttmnt {$$ = $1;}
     | block_sttmnt {$$ = $1;}
     | for_sttmnt {$$ = $1;}
     | while_sttmnt {$$ = $1;}
