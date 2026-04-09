@@ -4,63 +4,63 @@ Success!
 
 === Abstract Syntax Tree ===
 PROGRAM
-└── PROC_LIST
-    ├── PROC
+└── Top level
+    ├── FUNCTION
     │   ├── IDENTIFIER(foo)
-    │   │   └── PARAM_LIST
-    │   │       ├── PARAM
-    │   │       │   ├── IDENTIFIER(x)
-    │   │       │   └── TYPE(int)
-    │   │       └── PARAM_LIST
-    │   │           ├── PARAM
-    │   │           │   ├── IDENTIFIER(y)
-    │   │           │   └── TYPE(int)
-    │   │           └── PARAM_LIST
-    │   │               ├── PARAM
-    │   │               │   ├── IDENTIFIER(z)
-    │   │               │   └── TYPE(int)
-    │   │               └── PARAM_LIST
-    │   │                   └── PARAM
-    │   │                       ├── IDENTIFIER(f)
-    │   │                       └── TYPE(real)
-    │   └── IF_ELSE_STTMNT
-    │       ├── GT
-    │       │   ├── IDENTIFIER(x)
-    │       │   └── IDENTIFIER(y)
-    │       └── IF_BRANCHES
-    │           ├── THEN
-    │           │   └── STATEMENTS
-    │           │       ├── ASSIGN_STTMNT
-    │           │       │   ├── IDENTIFIER(x)
-    │           │       │   └── ADD
-    │           │       │       ├── IDENTIFIER(x)
-    │           │       │       └── IDENTIFIER(f)
-    │           │       └── IF_STTMNT
-    │           │           ├── LT
-    │           │           │   ├── IDENTIFIER(x)
-    │           │           │   └── IDENTIFIER(y)
-    │           │           └── THEN
-    │           └── ELSE
-    │               └── STATEMENTS
-    │                   ├── STATEMENTS
-    │                   │   ├── ASSIGN_STTMNT
-    │                   │   │   ├── IDENTIFIER(y)
-    │                   │   │   └── ADD
-    │                   │   │       ├── ADD
-    │                   │   │       │   ├── IDENTIFIER(x)
-    │                   │   │       │   └── IDENTIFIER(y)
-    │                   │   │       └── IDENTIFIER(z)
-    │                   │   └── ASSIGN_STTMNT
-    │                   │       ├── IDENTIFIER(x)
-    │                   │       └── MUL
-    │                   │           ├── IDENTIFIER(f)
-    │                   │           └── INT_LITERAL(2)
-    │                   └── ASSIGN_STTMNT
-    │                       ├── IDENTIFIER(z)
-    │                       └── IDENTIFIER(f)
-    └── FUNCTION
-        ├── IDENTIFIER(goo)
-        │   └── TYPE(char)
-        └── BODY
-            └── RETURN_STTMNT
-                └── CHAR_LITERAL(a)
+    │   │   ├── PARAM_LIST
+    │   │   │   ├── PARAM
+    │   │   │   │   ├── IDENTIFIER(i)
+    │   │   │   │   └── TYPE(int)
+    │   │   │   └── PARAM_LIST
+    │   │   │       ├── PARAM
+    │   │   │       │   ├── IDENTIFIER(j)
+    │   │   │       │   └── TYPE(int)
+    │   │   │       └── PARAM_LIST
+    │   │   │           └── PARAM
+    │   │   │               ├── IDENTIFIER(k)
+    │   │   │               └── TYPE(int)
+    │   │   └── TYPE(int)
+    │   └── BODY
+    │       ├── FUNCTION
+    │       │   ├── IDENTIFIER(fee)
+    │       │   │   ├── PARAM_LIST
+    │       │   │   │   ├── PARAM
+    │       │   │   │   │   ├── IDENTIFIER(l)
+    │       │   │   │   │   └── TYPE(int)
+    │       │   │   │   └── PARAM_LIST
+    │       │   │   │       ├── PARAM
+    │       │   │   │       │   ├── IDENTIFIER(m)
+    │       │   │   │       │   └── TYPE(int)
+    │       │   │   │       └── PARAM_LIST
+    │       │   │   │           ├── PARAM
+    │       │   │   │           │   ├── IDENTIFIER(n)
+    │       │   │   │           │   └── TYPE(int)
+    │       │   │   │           └── PARAM_LIST
+    │       │   │   │               ├── PARAM
+    │       │   │   │               │   ├── IDENTIFIER(k)
+    │       │   │   │               │   └── TYPE(bool)
+    │       │   │   │               └── PARAM_LIST
+    │       │   │   │                   └── PARAM
+    │       │   │   │                       ├── IDENTIFIER(r)
+    │       │   │   │                       └── TYPE(bool)
+    │       │   │   └── TYPE(int)
+    │       │   └── BODY
+    │       │       └── RETURN_STTMNT
+    │       │           └── INT_LITERAL(1)
+    │       └── RETURN_STTMNT
+    │           └── INT_LITERAL(0)
+    └── Top Level
+        └── PROC
+            └── IDENTIFIER(goo)
+                └── PARAM_LIST
+                    ├── PARAM
+                    │   ├── IDENTIFIER(a)
+                    │   └── TYPE(int)
+                    └── PARAM_LIST
+                        ├── PARAM
+                        │   ├── IDENTIFIER(b)
+                        │   └── TYPE(int)
+                        └── PARAM_LIST
+                            └── PARAM
+                                ├── IDENTIFIER(c)
+                                └── TYPE(int)

@@ -1,14 +1,12 @@
-proc foo(x, y, z: int; f: real){
-if (x>y) {
-x = x + f;
-if(x < y){}
+func foo(i, j, k : int) return int
+{
+ func fee(l, m, n : int; k, r : bool) return int
+ {
+ return 1;
+ }
+ return 0;
 }
-else {
-y = x + y + z;
-x = f*2;
-z = f;
-}
-}
-func goo() return char{
-return 'a';
+proc goo(a, b, c : int)
+{
+    
 }

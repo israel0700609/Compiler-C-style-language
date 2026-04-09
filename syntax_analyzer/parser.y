@@ -63,20 +63,24 @@ program:
 
 functions: 
     function functions {
-        $$ = createNode("FUNCTION_LIST", NULL); 
+        $$ = createNode("Top level", NULL);
         addLeftChild($$, $1);
         addRightChild($$, $2);
     }
   | proc functions     {
-        $$ = createNode("PROC_LIST",NULL);
+        $$ = createNode("Top level",NULL);
         addLeftChild($$, $1);
         addRightChild($$, $2);
    }
   | function           {
-        $$ = $1;
+        $$ = createNode("Top level", NULL);
+        addLeftChild($$, $1);
+        addRightChild($$, NULL);
    }
   | proc               {
-        $$ = $1;
+        $$ = createNode("Top Level", NULL);
+        addLeftChild($$, $1);
+        addRightChild($$, NULL);
    }
   ;
 
@@ -199,6 +203,8 @@ statement:
     | block_sttmnt {$$ = $1;}
     | for_sttmnt {$$ = $1;}
     | while_sttmnt {$$ = $1;}
+    | function {$$ = $1;}
+    | proc {$$ = $1;}
     ;
 assign_sttmnt:
     lhs '=' rhs ';'{
