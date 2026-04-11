@@ -85,7 +85,7 @@ functions:
   ;
 
 function:
-    FUNC IDENTIFIER '(' parameter_list ')' RETURN type '{' body_with_return '}' {
+    FUNC IDENTIFIER '(' parameter_list ')' RETURN type '{' body '}' {
         $$ = createNode("FUNCTION", NULL);
         Node* idNode = createNode("IDENTIFIER", $2);
         addLeftChild(idNode, $4);
@@ -152,11 +152,12 @@ type:
     | BOOL    { $$ = createNode("TYPE", "bool"); }
     | REAL    { $$ = createNode("TYPE", "real"); }
     | CHAR    { $$ = createNode("TYPE", "char"); }
-    | STRING  { $$ = createNode("TYPE", "string"); }
+    | STRING '[' INT_LITERAL ']' { char buf[32]; sprintf(buf,"%d",$3); $$ = createNode("STRING_ARRAY_TYPE", buf);}
     
     | INTPTR  { $$ = createNode("TYPE", "int*"); }
     | CHARPTR { $$ = createNode("TYPE", "char*"); }
     | REALPTR { $$ = createNode("TYPE", "real*"); }
+    
     ;
 body_with_return:
     body return_sttmnt {
@@ -203,6 +204,7 @@ statement:
     | block_sttmnt {$$ = $1;}
     | for_sttmnt {$$ = $1;}
     | while_sttmnt {$$ = $1;}
+    | return_sttmnt {$$ = $1;}
     | function {$$ = $1;}
     | proc {$$ = $1;}
     ;
@@ -223,10 +225,10 @@ lhs:
         addLeftChild($$,createNode("IDENTIFIER",$1));
         addRightChild($$,$3);
         }
-    | '^' IDENTIFIER {
-        $$ = createNode("DEREF",NULL);
-        addLeftChild($$, createNode("IDENTIFIER", $2));
-        addRightChild($$,NULL);
+    | '^' expression {
+        $$ = createNode("DEREF", NULL);
+        addLeftChild($$, $2);
+        addRightChild($$, NULL);
     }
     ;   
 rhs:
@@ -253,11 +255,25 @@ expression:
     | expression '/' expression { $$ = createNode("DIV", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
     | '!' expression { $$ = createNode("NOT",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
     | '-' expression %prec '!'{ $$ = createNode("NEG",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
+    | '+' expression %prec '!' { $$ = createNode("POS",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
     | '^' expression { $$ = createNode("DEREF",NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
     | '&' IDENTIFIER { $$ = createNode("ADDR_OF",NULL); addLeftChild($$,createNode("IDENTIFIER",$2)); addRightChild($$,NULL); }
+    | '&' IDENTIFIER '[' expression ']' { 
+        Node* arr = createNode("ARRAY_ACCESS", NULL);
+        addLeftChild(arr, createNode("IDENTIFIER", $2));
+        addRightChild(arr, $4);
+        $$ = createNode("ADDR_OF", NULL);
+        addLeftChild($$, arr);
+    }
     | '(' expression ')' { $$ = $2; }
+    | '|' IDENTIFIER '|' { $$ = createNode("STRLEN",NULL); addLeftChild($$,createNode("IDENTIFIER",$2)); addRightChild($$,NULL); }
     | IDENTIFIER '[' expression ']'{ $$ = createNode("ARRAY_ACCESS",NULL); addLeftChild($$,createNode("IDENTIFIER",$1)); addRightChild($$,$3); }
     | IDENTIFIER { $$ = createNode("IDENTIFIER",$1); }
+    | IDENTIFIER '(' arguments ')' { 
+        $$ = createNode("FUNC_CALL", NULL); 
+        addLeftChild($$, createNode("IDENTIFIER", $1)); 
+        addRightChild($$, $3); 
+    }
     | INT_LITERAL { char buf[32]; sprintf(buf,"%d",$1);  $$ = createNode("INT_LITERAL",  buf); }
     | REAL_LITERAL { char buf[64]; sprintf(buf,"%g",$1);  $$ = createNode("REAL_LITERAL", buf); }
     | CHAR_LITERAL { char buf[4];  buf[0]=$1; buf[1]='\0'; $$ = createNode("CHAR_LITERAL",buf); }
@@ -265,7 +281,6 @@ expression:
     | FALSE_LITERAL { $$ = createNode("BOOL_LITERAL","false"); }
     | NULL_TOK { $$ = createNode("NULL",NULL); }
     ;
-
 
 decl_sttmnt: 
     VAR var_decl_list ';' { 
@@ -280,7 +295,7 @@ var_decl_list:
         
         Node* id = createNode("VAR_DECL", NULL);
         addLeftChild(id, createNode("IDENTIFIER", $1));
-        addRightChild(id, cloned_type); /* משתמשים בשיבוט! */
+        addRightChild(id, cloned_type); 
 
         $$ = createNode("VAR_LIST", NULL);
         addLeftChild($$, id);
@@ -299,14 +314,10 @@ var_decl_list:
     ;
 
 call_sttmnt:
-    lhs '=' IDENTIFIER '(' arguments ')' ';'{
-        Node* rhss = createNode("RHS_CALL",NULL);
-        addLeftChild(rhss,createNode("IDENTIFIER",$3));
-        addRightChild(rhss,$5);
-
-        $$ = createNode("CALL_STTMNT",NULL);
-        addLeftChild($$,$1);
-        addRightChild($$,rhss);
+    IDENTIFIER '(' arguments ')' ';' {
+        $$ = createNode("CALL_STTMNT", NULL);
+        addLeftChild($$, createNode("IDENTIFIER", $1));
+        addRightChild($$, $3);
     }
     ;
 arguments:
@@ -410,9 +421,9 @@ return_sttmnt:
     }
     ;
 
+%%
 
 
-%% 
 
 /* #include "lex.yy.c" */ 
 
@@ -423,12 +434,10 @@ int main() {
         printf("=== Abstract Syntax Tree ===\n");
         printTree(root);
         freeTree(root);
-    } else {
-        printf("Failed.\n");
-    }
+    } 
     return 0;
 }
 
 void yyerror(const char* s) {
-    printf("Syntax Error on line %d: %s\n", yylineno, s);
+    printf("Syntax Error on line %d: %s: unexpected token '%s' \n ", yylineno, s,yytext);
 }

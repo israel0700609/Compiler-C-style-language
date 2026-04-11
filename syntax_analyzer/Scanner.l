@@ -76,16 +76,34 @@ HEX        [0-9a-fA-F]
     return REAL_LITERAL; 
 }
 
- /* מחרוזות: מוקפות במרכאות כפולות, לא נשברות שורה */
 \"([^\"\n\\]|\\.)*\" { 
     int len = yyleng - 2;
     char* str = (char*)malloc(len + 1);
-    strncpy(str, yytext + 1, len);
-    str[len] = '\0';
+    
+    int i = 1; 
+    int j = 0;
+    
+    while (i <= len) {
+        if (yytext[i] == '\\') {
+            i++;
+            switch(yytext[i]) {
+                case 'n': str[j++] = '\n'; break;
+                case 't': str[j++] = '\t'; break;
+                case 'r': str[j++] = '\r'; break;
+                case '\\': str[j++] = '\\'; break;
+                case '\"': str[j++] = '\"'; break;
+                default:  str[j++] = yytext[i]; break; 
+            }
+        } else {
+            str[j++] = yytext[i];
+        }
+        i++;
+    }
+    str[j] = '\0'; 
+    
     yylval.str_val = str;
     return STRING_LITERAL; 
 }
-
  /* תווים (char): תומכים בתווי Escape */
 \'([^'\n\\]|\\.)\'   { 
     if(yytext[1] != '\\') {

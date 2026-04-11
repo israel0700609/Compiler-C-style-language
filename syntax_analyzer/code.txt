@@ -1,12 +1,7 @@
-func foo(i, j, k : int) return int
-{
- func fee(l, m, n : int; k, r : bool) return int
- {
- return 1;
- }
- return 0;
-}
-proc goo(a, b, c : int)
-{
-    
+proc f(){
+var a, b : string[100];
+var c : char;
+c = 'e'; /% everything up to this is OK %/
+c = a; /% type mismatch, can't assign string type to character type %/
+(a + 4)[0] = 'e';
 }
