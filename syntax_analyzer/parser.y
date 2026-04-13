@@ -36,7 +36,7 @@ void yyerror(const char* s);
 %token <str_val> IDENTIFIER 
 %token EQ NEQ GTE LTE AND OR 
 
-%type <node_val> program functions function proc parameter_list non_empty_param_list type body_with_return body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list if_sttmnt else_op for_sttmnt while_sttmnt block_sttmnt return_sttmnt expression
+%type <node_val> program functions function proc parameter_list non_empty_param_list type body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list if_sttmnt else_op for_sttmnt while_sttmnt block_sttmnt return_sttmnt expression
 
 
 /* Precedence */
@@ -159,13 +159,6 @@ type:
     | REALPTR { $$ = createNode("TYPE", "real*"); }
     
     ;
-body_with_return:
-    body return_sttmnt {
-        $$ = createNode("BODY", NULL);
-        addLeftChild($$, $1);
-        addRightChild($$, $2);
-    }
-    ;
 body:
     declarations statements {
         $$ = createNode("BODY", NULL);
@@ -217,31 +210,39 @@ assign_sttmnt:
     ;
     
 lhs: 
-    IDENTIFIER  {
-        $$ = createNode("IDENTIFIER", $1);
-        }
+    IDENTIFIER  { $$ = createNode("IDENTIFIER", $1); }
     | IDENTIFIER '[' expression ']' {
-        $$ = createNode("ARRAY_ACCESS",NULL);
-        addLeftChild($$,createNode("IDENTIFIER",$1));
-        addRightChild($$,$3);
-        }
-    | '^' expression {
-        $$ = createNode("DEREF", NULL);
-        addLeftChild($$, $2);
+        $$ = createNode("ARRAY_ACCESS", NULL);
+        addLeftChild($$, createNode("IDENTIFIER", $1));
+        addRightChild($$, $3);
+    }
+    | '^' IDENTIFIER { 
+        $$ = createNode("DEREF", NULL); 
+        addLeftChild($$, createNode("IDENTIFIER", $2)); 
+        addRightChild($$, NULL); 
+    }
+    | '^' IDENTIFIER '[' expression ']' {
+        Node* arr = createNode("ARRAY_ACCESS", NULL);
+        addLeftChild(arr, createNode("IDENTIFIER", $2));
+        addRightChild(arr, $4);
+        $$ = createNode("DEREF", NULL); 
+        addLeftChild($$, arr);
         addRightChild($$, NULL);
     }
-    ;   
+    | '^' '(' expression ')' {
+        $$ = createNode("DEREF", NULL); 
+        addLeftChild($$, $3); 
+        addRightChild($$, NULL); 
+    }
+    ;
 rhs:
     expression {
         $$ = $1;
     }
-    | STRING_LITERAL {
-        $$ = createNode("STRING_LITERAL", $1);
-    }
     ;
 
 expression:
-    expression OR expression { $$ = createNode("OR",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
+      expression OR expression { $$ = createNode("OR",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
     | expression AND expression { $$ = createNode("AND", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
     | expression EQ expression  { $$ = createNode("EQ",  NULL); addLeftChild($$,$1); addRightChild($$,$3); }
     | expression NEQ expression { $$ = createNode("NEQ", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
@@ -254,9 +255,24 @@ expression:
     | expression '*' expression { $$ = createNode("MUL", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
     | expression '/' expression { $$ = createNode("DIV", NULL); addLeftChild($$,$1); addRightChild($$,$3); }
     | '!' expression { $$ = createNode("NOT",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
-    | '-' expression %prec '!'{ $$ = createNode("NEG",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
+    | '-' expression %prec '!' { $$ = createNode("NEG",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
     | '+' expression %prec '!' { $$ = createNode("POS",  NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
-    | '^' expression { $$ = createNode("DEREF",NULL); addLeftChild($$,$2); addRightChild($$,NULL); }
+    | '^' IDENTIFIER { 
+        $$ = createNode("DEREF", NULL); 
+        addLeftChild($$, createNode("IDENTIFIER", $2)); 
+    }
+    | '^' IDENTIFIER '[' expression ']' { 
+        Node* arr = createNode("ARRAY_ACCESS", NULL);
+        addLeftChild(arr, createNode("IDENTIFIER", $2));
+        addRightChild(arr, $4);
+        $$ = createNode("DEREF", NULL); 
+        addLeftChild($$, arr); 
+    }
+    | '^' '(' expression ')' { 
+        $$ = createNode("DEREF", NULL); 
+        addLeftChild($$, $3); 
+    }
+
     | '&' IDENTIFIER { $$ = createNode("ADDR_OF",NULL); addLeftChild($$,createNode("IDENTIFIER",$2)); addRightChild($$,NULL); }
     | '&' IDENTIFIER '[' expression ']' { 
         Node* arr = createNode("ARRAY_ACCESS", NULL);
@@ -266,7 +282,9 @@ expression:
         addLeftChild($$, arr);
     }
     | '(' expression ')' { $$ = $2; }
-    | '|' IDENTIFIER '|' { $$ = createNode("STRLEN",NULL); addLeftChild($$,createNode("IDENTIFIER",$2)); addRightChild($$,NULL); }
+    
+    | '|' expression '|' { $$ = createNode("STRLEN", NULL); addLeftChild($$, $2); } 
+    
     | IDENTIFIER '[' expression ']'{ $$ = createNode("ARRAY_ACCESS",NULL); addLeftChild($$,createNode("IDENTIFIER",$1)); addRightChild($$,$3); }
     | IDENTIFIER { $$ = createNode("IDENTIFIER",$1); }
     | IDENTIFIER '(' arguments ')' { 
@@ -279,9 +297,11 @@ expression:
     | CHAR_LITERAL { char buf[4];  buf[0]=$1; buf[1]='\0'; $$ = createNode("CHAR_LITERAL",buf); }
     | TRUE_LITERAL { $$ = createNode("BOOL_LITERAL","true"); }
     | FALSE_LITERAL { $$ = createNode("BOOL_LITERAL","false"); }
+    
+    | STRING_LITERAL { $$ = createNode("STRING_LITERAL", $1); } 
+    
     | NULL_TOK { $$ = createNode("NULL",NULL); }
     ;
-
 decl_sttmnt: 
     VAR var_decl_list ';' { 
         $$ = $2; 
