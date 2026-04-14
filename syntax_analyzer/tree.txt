@@ -310,30 +310,32 @@ PROGRAM
                     │           └── GTE
                     │               ├── IDENTIFIER(num1)
                     │               └── IDENTIFIER(num2)
-                    └── IF_STTMNT
+                    └── IF_ELSE_STTMNT
                         ├── AND
                         │   ├── IDENTIFIER(isValid)
                         │   └── NEQ
                         │       ├── IDENTIFIER(cPtr)
                         │       └── NULL
-                        └── THEN
-                            └── STATEMENTS
-                                ├── ASSIGN_STTMNT
-                                │   ├── DEREF
-                                │   │   └── IDENTIFIER(cPtr)
-                                │   └── CHAR_LITERAL(c)
-                                └── BODY
-                                    ├── VAR_LIST
-                                    │   └── VAR_DECL
-                                    │       ├── IDENTIFIER(tempChar)
-                                    │       └── TYPE(char)
-                                    └── STATEMENTS
-                                        ├── ASSIGN_STTMNT
-                                        │   ├── IDENTIFIER(tempChar)
-                                        │   └── DEREF
-                                        │       └── IDENTIFIER(cPtr)
-                                        └── ASSIGN_STTMNT
-                                            ├── ARRAY_ACCESS
-                                            │   ├── IDENTIFIER(copy)
-                                            │   └── INT_LITERAL(1)
-                                            └── IDENTIFIER(tempChar)
+                        └── IF_BRANCHES
+                            ├── THEN
+                            │   └── STATEMENTS
+                            │       ├── ASSIGN_STTMNT
+                            │       │   ├── DEREF
+                            │       │   │   └── IDENTIFIER(cPtr)
+                            │       │   └── CHAR_LITERAL(c)
+                            │       └── BODY
+                            │           ├── VAR_LIST
+                            │           │   └── VAR_DECL
+                            │           │       ├── IDENTIFIER(tempChar)
+                            │           │       └── TYPE(char)
+                            │           └── STATEMENTS
+                            │               ├── ASSIGN_STTMNT
+                            │               │   ├── IDENTIFIER(tempChar)
+                            │               │   └── DEREF
+                            │               │       └── IDENTIFIER(cPtr)
+                            │               └── ASSIGN_STTMNT
+                            │                   ├── ARRAY_ACCESS
+                            │                   │   ├── IDENTIFIER(copy)
+                            │                   │   └── INT_LITERAL(1)
+                            │                   └── IDENTIFIER(tempChar)
+                            └── ELSE

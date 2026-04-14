@@ -36,10 +36,16 @@ void yyerror(const char* s);
 %token <str_val> IDENTIFIER 
 %token EQ NEQ GTE LTE AND OR 
 
-%type <node_val> program functions function proc parameter_list non_empty_param_list type body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list if_sttmnt else_op for_sttmnt while_sttmnt block_sttmnt return_sttmnt expression
+%type <node_val> program functions function proc parameter_list non_empty_param_list type body declarations statements statement assign_sttmnt lhs rhs decl_sttmnt var_decl_list call_sttmnt arguments non_empty_arguments_list if_sttmnt for_sttmnt while_sttmnt block_sttmnt return_sttmnt expression
+
+
 
 
 /* Precedence */
+
+%nonassoc IFX
+%nonassoc ELSE
+
 %left OR
 %left AND
 %left EQ NEQ
@@ -359,39 +365,29 @@ non_empty_arguments_list:
     ;
 
 if_sttmnt:
-    IF '(' expression ')' statement else_op {
-        if ($6 == NULL) {
-            $$ = createNode("IF_STTMNT", NULL);
-            addLeftChild($$, $3); 
-            
-            Node* then_block = createNode("THEN", NULL);
-            addLeftChild(then_block, $5);
-            addRightChild($$, then_block);
-            
-        } else {
-            $$ = createNode("IF_ELSE_STTMNT", NULL);
-            
-            Node* then_block = createNode("THEN", NULL);
-            addLeftChild(then_block, $5);
-            
-            Node* else_block = createNode("ELSE", NULL);
-            addLeftChild(else_block, $6);
-            
-            Node* branches = createNode("IF_BRANCHES", NULL);
-            addLeftChild(branches, then_block);
-            addRightChild(branches, else_block);
-            
-            addLeftChild($$, $3);
-            addRightChild($$, branches);
-        }
+    IF '(' expression ')' statement %prec IFX {
+        $$ = createNode("IF_STTMNT", NULL);
+        addLeftChild($$, $3); 
+        
+        Node* then_block = createNode("THEN", NULL);
+        addLeftChild(then_block, $5);
+        addRightChild($$, then_block);
     }
-    ;
-else_op:
-    ELSE statement {
-        $$ = $2;
-    }
-    | {
-        $$ = NULL;
+    | IF '(' expression ')' statement ELSE statement {
+        $$ = createNode("IF_ELSE_STTMNT", NULL);
+        
+        Node* then_block = createNode("THEN", NULL);
+        addLeftChild(then_block, $5);
+        
+        Node* else_block = createNode("ELSE", NULL);
+        addLeftChild(else_block, $7);
+        
+        Node* branches = createNode("IF_BRANCHES", NULL);
+        addLeftChild(branches, then_block);
+        addRightChild(branches, else_block);
+        
+        addLeftChild($$, $3);
+        addRightChild($$, branches);
     }
     ;
 
