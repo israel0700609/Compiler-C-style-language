@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern int yylineno;
 
 Node *root = NULL;
 
@@ -30,6 +31,7 @@ Node *createNode(const char *type, const char *value) {
   node->value = duplicateString(value);
   node->left = NULL;
   node->right = NULL;
+  node->lineno = yylineno;
   return node;
 }
 

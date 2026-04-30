@@ -1,12 +1,15 @@
 #ifndef AST_H
 #define AST_H
 
+
+
 typedef struct Node
 {
     char *type;
     char *value;
     struct Node *left;
     struct Node *right;
+    int lineno;
 } Node;
 
 extern Node *root;
