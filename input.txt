@@ -1,86 +1,19 @@
-func findChar(s: string[100]; target: char) return char* {
-    /% הצהרות משתנים בתחילת הבלוק %/
-    var ptr, result: char*;
-    var i, len: int;
-    
-    /% פקודות לאחר ההצהרות %/
-    len = |s|; 
-    ptr = &s[0]; 
-    result = null; 
-    
-    for (i = 0; i < len; i = i + 1) { 
-        if (^ptr == target) {
-            result = ptr;
-        }
-        ptr = ptr + 1; /% אריתמטיקת מצביעים חוקית ל-char* %/ 
-    }
-    
-    return result; 
-}
+proc p3 (a, b, c:real; d:int)
 
-proc Main() {
-    /% 1. הצהרות משתנים בראש הבלוק (לפי התמונה שהעלית) %/
-    var text, copy: string[100]; 
-    var pInt, pIntTwo: int*; 
-    var pReal: real*; 
-    var cPtr: char*;
-    var num1, num2, resFunc: int; 
-    var pi, sciReal: real; 
-    var isValid, isDone: bool; 
+{
 
-    /% 2. פונקציות ופרוצדורות מקוננות (כחלק מה-Statements) %/
-    func power(base, exp: int) return int { 
-        var res: int;
-        res = 1;
-        while (exp > 0) { 
-            res = res * base;
-            exp = exp - 1;
-        }
-        return res;
-    }
-    
-    proc swap(a, b: int*) {
-        var temp: int;
-        temp = ^a; 
-        ^a = ^b;
-        ^b = temp;
-    }
+var a1,a2:real;
 
-    /% 3. פקודות ביצוע וליטרלים מורכבים %/
-    num1 = 0x1A; /% הקסדצימלי %/ 
-    num2 = -25;  /% מספר שלילי %/ 
-    pi = 3.1415; 
-    sciReal = -45.3E-23; /% מדעי %/
-    
-    swap(&num1, &num2); /% קריאה לפרוצדורה %/ 
-    resFunc = power(2, 5); /% קריאה לפונקציה בהשמה %/ 
-    
-    text = "Stress testing the Compiler!"; 
-    copy = text; 
-    copy[0] = 's'; 
-    
-    pInt = &num1; 
-    pIntTwo = pInt;
-    pReal = &sciReal;
-    
-    /% דירפרנס וחישוב מורכב %/
-    ^pInt = (^pIntTwo * 2) + resFunc; 
-    
-    cPtr = findChar(text, 'C');
-    
-    isValid = true;
-    isDone = !false && (num1 >= num2); 
-    
-    if (isValid && (cPtr != null)) { 
-        ^cPtr = 'c';
-        
-        { /% בלוק פנימי נוסף %/ 
-            var tempChar: char; /% קודם משתנים בתוך הבלוק %/ 
-            tempChar = ^cPtr;
-            copy[1] = tempChar;
-        }
-        
-    } else {
-        {} /% בלוק ריק חוקי %/
-    }
+var a3:int;
+
+if(a>=b)
+
+a1=d*5;
+
+else
+
+a2=c-77;
+
+a3=d;
+
 }

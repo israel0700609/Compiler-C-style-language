@@ -4,338 +4,57 @@ Success!
 
 === Abstract Syntax Tree ===
 PROGRAM
-`-- Top level
-    |-- FUNCTION
-    |   |-- IDENTIFIER(findChar)
-    |   |   |-- PARAM_LIST
-    |   |   |   |-- PARAM
-    |   |   |   |   |-- IDENTIFIER(s)
-    |   |   |   |   `-- STRING_ARRAY_TYPE(100)
-    |   |   |   `-- PARAM_LIST
-    |   |   |       `-- PARAM
-    |   |   |           |-- IDENTIFIER(target)
-    |   |   |           `-- TYPE(char)
-    |   |   `-- TYPE(char*)
-    |   `-- BODY
-    |       |-- DECLARATIONS
-    |       |   |-- VAR_LIST
-    |       |   |   |-- VAR_DECL
-    |       |   |   |   |-- IDENTIFIER(ptr)
-    |       |   |   |   `-- TYPE(char*)
-    |       |   |   `-- VAR_LIST
-    |       |   |       `-- VAR_DECL
-    |       |   |           |-- IDENTIFIER(result)
-    |       |   |           `-- TYPE(char*)
-    |       |   `-- VAR_LIST
-    |       |       |-- VAR_DECL
-    |       |       |   |-- IDENTIFIER(i)
-    |       |       |   `-- TYPE(int)
-    |       |       `-- VAR_LIST
-    |       |           `-- VAR_DECL
-    |       |               |-- IDENTIFIER(len)
-    |       |               `-- TYPE(int)
-    |       `-- STATEMENTS
-    |           |-- STATEMENTS
-    |           |   |-- STATEMENTS
-    |           |   |   |-- STATEMENTS
-    |           |   |   |   |-- ASSIGN_STTMNT
-    |           |   |   |   |   |-- IDENTIFIER(len)
-    |           |   |   |   |   `-- STRLEN
-    |           |   |   |   |       `-- IDENTIFIER(s)
-    |           |   |   |   `-- ASSIGN_STTMNT
-    |           |   |   |       |-- IDENTIFIER(ptr)
-    |           |   |   |       `-- ADDR_OF
-    |           |   |   |           `-- ARRAY_ACCESS
-    |           |   |   |               |-- IDENTIFIER(s)
-    |           |   |   |               `-- INT_LITERAL(0)
-    |           |   |   `-- ASSIGN_STTMNT
-    |           |   |       |-- IDENTIFIER(result)
-    |           |   |       `-- NULL
-    |           |   `-- FOR_STTMNT
-    |           |       |-- FOR_HEADER
-    |           |       |   |-- FOR_INIT
-    |           |       |   |   |-- IDENTIFIER(i)
-    |           |       |   |   `-- INT_LITERAL(0)
-    |           |       |   `-- FOR_COND_UPDATE
-    |           |       |       |-- LT
-    |           |       |       |   |-- IDENTIFIER(i)
-    |           |       |       |   `-- IDENTIFIER(len)
-    |           |       |       `-- FOR_UPDATE
-    |           |       |           |-- IDENTIFIER(i)
-    |           |       |           `-- ADD
-    |           |       |               |-- IDENTIFIER(i)
-    |           |       |               `-- INT_LITERAL(1)
-    |           |       `-- STATEMENTS
-    |           |           |-- IF_STTMNT
-    |           |           |   |-- EQ
-    |           |           |   |   |-- DEREF
-    |           |           |   |   |   `-- IDENTIFIER(ptr)
-    |           |           |   |   `-- IDENTIFIER(target)
-    |           |           |   `-- THEN
-    |           |           |       `-- ASSIGN_STTMNT
-    |           |           |           |-- IDENTIFIER(result)
-    |           |           |           `-- IDENTIFIER(ptr)
-    |           |           `-- ASSIGN_STTMNT
-    |           |               |-- IDENTIFIER(ptr)
-    |           |               `-- ADD
-    |           |                   |-- IDENTIFIER(ptr)
-    |           |                   `-- INT_LITERAL(1)
-    |           `-- RETURN_STTMNT
-    |               `-- IDENTIFIER(result)
-    `-- Top Level
-        `-- PROC
-            |-- IDENTIFIER(Main)
-            `-- BODY
-                |-- DECLARATIONS
-                |   |-- DECLARATIONS
-                |   |   |-- DECLARATIONS
-                |   |   |   |-- DECLARATIONS
-                |   |   |   |   |-- DECLARATIONS
-                |   |   |   |   |   |-- DECLARATIONS
-                |   |   |   |   |   |   |-- VAR_LIST
-                |   |   |   |   |   |   |   |-- VAR_DECL
-                |   |   |   |   |   |   |   |   |-- IDENTIFIER(text)
-                |   |   |   |   |   |   |   |   `-- STRING_ARRAY_TYPE(100)
-                |   |   |   |   |   |   |   `-- VAR_LIST
-                |   |   |   |   |   |   |       `-- VAR_DECL
-                |   |   |   |   |   |   |           |-- IDENTIFIER(copy)
-                |   |   |   |   |   |   |           `-- STRING_ARRAY_TYPE(100)
-                |   |   |   |   |   |   `-- VAR_LIST
-                |   |   |   |   |   |       |-- VAR_DECL
-                |   |   |   |   |   |       |   |-- IDENTIFIER(pInt)
-                |   |   |   |   |   |       |   `-- TYPE(int*)
-                |   |   |   |   |   |       `-- VAR_LIST
-                |   |   |   |   |   |           `-- VAR_DECL
-                |   |   |   |   |   |               |-- IDENTIFIER(pIntTwo)
-                |   |   |   |   |   |               `-- TYPE(int*)
-                |   |   |   |   |   `-- VAR_LIST
-                |   |   |   |   |       `-- VAR_DECL
-                |   |   |   |   |           |-- IDENTIFIER(pReal)
-                |   |   |   |   |           `-- TYPE(real*)
-                |   |   |   |   `-- VAR_LIST
-                |   |   |   |       `-- VAR_DECL
-                |   |   |   |           |-- IDENTIFIER(cPtr)
-                |   |   |   |           `-- TYPE(char*)
-                |   |   |   `-- VAR_LIST
-                |   |   |       |-- VAR_DECL
-                |   |   |       |   |-- IDENTIFIER(num1)
-                |   |   |       |   `-- TYPE(int)
-                |   |   |       `-- VAR_LIST
-                |   |   |           |-- VAR_DECL
-                |   |   |           |   |-- IDENTIFIER(num2)
-                |   |   |           |   `-- TYPE(int)
-                |   |   |           `-- VAR_LIST
-                |   |   |               `-- VAR_DECL
-                |   |   |                   |-- IDENTIFIER(resFunc)
-                |   |   |                   `-- TYPE(int)
-                |   |   `-- VAR_LIST
-                |   |       |-- VAR_DECL
-                |   |       |   |-- IDENTIFIER(pi)
-                |   |       |   `-- TYPE(real)
-                |   |       `-- VAR_LIST
-                |   |           `-- VAR_DECL
-                |   |               |-- IDENTIFIER(sciReal)
-                |   |               `-- TYPE(real)
-                |   `-- VAR_LIST
-                |       |-- VAR_DECL
-                |       |   |-- IDENTIFIER(isValid)
-                |       |   `-- TYPE(bool)
-                |       `-- VAR_LIST
-                |           `-- VAR_DECL
-                |               |-- IDENTIFIER(isDone)
-                |               `-- TYPE(bool)
-                `-- STATEMENTS
-                    |-- STATEMENTS
-                    |   |-- STATEMENTS
-                    |   |   |-- STATEMENTS
-                    |   |   |   |-- STATEMENTS
-                    |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |-- FUNCTION
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |-- IDENTIFIER(power)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |-- PARAM_LIST
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |-- PARAM
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |-- IDENTIFIER(base)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   `-- TYPE(int)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   `-- PARAM_LIST
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       `-- PARAM
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |-- IDENTIFIER(exp)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           `-- TYPE(int)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   `-- TYPE(int)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   `-- BODY
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |-- VAR_LIST
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |   `-- VAR_DECL
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |       |-- IDENTIFIER(res)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |       `-- TYPE(int)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       `-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |   |-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |   |   |-- IDENTIFIER(res)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |   |   `-- INT_LITERAL(1)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |   `-- WHILE_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |       |-- GT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |       |   |-- IDENTIFIER(exp)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |       |   `-- INT_LITERAL(0)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |       `-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |           |-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |           |   |-- IDENTIFIER(res)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |           |   `-- MUL
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |           |       |-- IDENTIFIER(res)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |           |       `-- IDENTIFIER(base)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |           `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |               |-- IDENTIFIER(exp)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |               `-- SUB
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |                   |-- IDENTIFIER(exp)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |                   `-- INT_LITERAL(1)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           `-- RETURN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               `-- IDENTIFIER(res)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   `-- PROC
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |-- IDENTIFIER(swap)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |   `-- PARAM_LIST
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |       |-- PARAM
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |       |   |-- IDENTIFIER(a)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |       |   `-- TYPE(int*)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |       `-- PARAM_LIST
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |           `-- PARAM
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |               |-- IDENTIFIER(b)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |               `-- TYPE(int*)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       `-- BODY
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |-- VAR_LIST
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |   `-- VAR_DECL
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |       |-- IDENTIFIER(temp)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           |       `-- TYPE(int)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           `-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |-- STATEMENTS
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |   |-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |   |   |-- IDENTIFIER(temp)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |   |   `-- DEREF
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |   |       `-- IDENTIFIER(a)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |       |-- DEREF
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |       |   `-- IDENTIFIER(a)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |       `-- DEREF
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |           `-- IDENTIFIER(b)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |               `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |                   |-- DEREF
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |                   |   `-- IDENTIFIER(b)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |                   `-- IDENTIFIER(temp)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |-- IDENTIFIER(num1)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       `-- INT_LITERAL(26)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       |-- IDENTIFIER(num2)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |       `-- NEG
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |           `-- INT_LITERAL(25)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |       |-- IDENTIFIER(pi)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   |       `-- REAL_LITERAL(3.1415)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |   |       |-- IDENTIFIER(sciReal)
-                    |   |   |   |   |   |   |   |   |   |   |   |   |       `-- NEG
-                    |   |   |   |   |   |   |   |   |   |   |   |   |           `-- REAL_LITERAL(4.53e-22)
-                    |   |   |   |   |   |   |   |   |   |   |   |   `-- CALL_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |   |       |-- IDENTIFIER(swap)
-                    |   |   |   |   |   |   |   |   |   |   |   |       `-- ARGUMENTS_LIST
-                    |   |   |   |   |   |   |   |   |   |   |   |           |-- ADDR_OF
-                    |   |   |   |   |   |   |   |   |   |   |   |           |   `-- IDENTIFIER(num1)
-                    |   |   |   |   |   |   |   |   |   |   |   |           `-- ARGUMENTS_LIST
-                    |   |   |   |   |   |   |   |   |   |   |   |               `-- ADDR_OF
-                    |   |   |   |   |   |   |   |   |   |   |   |                   `-- IDENTIFIER(num2)
-                    |   |   |   |   |   |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |   |       |-- IDENTIFIER(resFunc)
-                    |   |   |   |   |   |   |   |   |   |   |       `-- FUNC_CALL
-                    |   |   |   |   |   |   |   |   |   |   |           |-- IDENTIFIER(power)
-                    |   |   |   |   |   |   |   |   |   |   |           `-- ARGUMENTS_LIST
-                    |   |   |   |   |   |   |   |   |   |   |               |-- INT_LITERAL(2)
-                    |   |   |   |   |   |   |   |   |   |   |               `-- ARGUMENTS_LIST
-                    |   |   |   |   |   |   |   |   |   |   |                   `-- INT_LITERAL(5)
-                    |   |   |   |   |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |   |       |-- IDENTIFIER(text)
-                    |   |   |   |   |   |   |   |   |   |       `-- STRING_LITERAL(Stress testing the Compiler!)
-                    |   |   |   |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |   |       |-- IDENTIFIER(copy)
-                    |   |   |   |   |   |   |   |   |       `-- IDENTIFIER(text)
-                    |   |   |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |   |       |-- ARRAY_ACCESS
-                    |   |   |   |   |   |   |   |       |   |-- IDENTIFIER(copy)
-                    |   |   |   |   |   |   |   |       |   `-- INT_LITERAL(0)
-                    |   |   |   |   |   |   |   |       `-- CHAR_LITERAL(s)
-                    |   |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |   |       |-- IDENTIFIER(pInt)
-                    |   |   |   |   |   |   |       `-- ADDR_OF
-                    |   |   |   |   |   |   |           `-- IDENTIFIER(num1)
-                    |   |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |   |       |-- IDENTIFIER(pIntTwo)
-                    |   |   |   |   |   |       `-- IDENTIFIER(pInt)
-                    |   |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |   |       |-- IDENTIFIER(pReal)
-                    |   |   |   |   |       `-- ADDR_OF
-                    |   |   |   |   |           `-- IDENTIFIER(sciReal)
-                    |   |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |   |       |-- DEREF
-                    |   |   |   |       |   `-- IDENTIFIER(pInt)
-                    |   |   |   |       `-- ADD
-                    |   |   |   |           |-- MUL
-                    |   |   |   |           |   |-- DEREF
-                    |   |   |   |           |   |   `-- IDENTIFIER(pIntTwo)
-                    |   |   |   |           |   `-- INT_LITERAL(2)
-                    |   |   |   |           `-- IDENTIFIER(resFunc)
-                    |   |   |   `-- ASSIGN_STTMNT
-                    |   |   |       |-- IDENTIFIER(cPtr)
-                    |   |   |       `-- FUNC_CALL
-                    |   |   |           |-- IDENTIFIER(findChar)
-                    |   |   |           `-- ARGUMENTS_LIST
-                    |   |   |               |-- IDENTIFIER(text)
-                    |   |   |               `-- ARGUMENTS_LIST
-                    |   |   |                   `-- CHAR_LITERAL(C)
-                    |   |   `-- ASSIGN_STTMNT
-                    |   |       |-- IDENTIFIER(isValid)
-                    |   |       `-- BOOL_LITERAL(true)
-                    |   `-- ASSIGN_STTMNT
-                    |       |-- IDENTIFIER(isDone)
-                    |       `-- AND
-                    |           |-- NOT
-                    |           |   `-- BOOL_LITERAL(false)
-                    |           `-- GTE
-                    |               |-- IDENTIFIER(num1)
-                    |               `-- IDENTIFIER(num2)
-                    `-- IF_ELSE_STTMNT
-                        |-- AND
-                        |   |-- IDENTIFIER(isValid)
-                        |   `-- NEQ
-                        |       |-- IDENTIFIER(cPtr)
-                        |       `-- NULL
-                        `-- IF_BRANCHES
-                            |-- THEN
-                            |   `-- STATEMENTS
-                            |       |-- ASSIGN_STTMNT
-                            |       |   |-- DEREF
-                            |       |   |   `-- IDENTIFIER(cPtr)
-                            |       |   `-- CHAR_LITERAL(c)
-                            |       `-- BODY
-                            |           |-- VAR_LIST
-                            |           |   `-- VAR_DECL
-                            |           |       |-- IDENTIFIER(tempChar)
-                            |           |       `-- TYPE(char)
-                            |           `-- STATEMENTS
-                            |               |-- ASSIGN_STTMNT
-                            |               |   |-- IDENTIFIER(tempChar)
-                            |               |   `-- DEREF
-                            |               |       `-- IDENTIFIER(cPtr)
-                            |               `-- ASSIGN_STTMNT
-                            |                   |-- ARRAY_ACCESS
-                            |                   |   |-- IDENTIFIER(copy)
-                            |                   |   `-- INT_LITERAL(1)
-                            |                   `-- IDENTIFIER(tempChar)
-                            `-- ELSE
+`-- Top Level
+    `-- PROC
+        |-- IDENTIFIER(p3)
+        |   `-- PARAM_LIST
+        |       |-- PARAM
+        |       |   |-- IDENTIFIER(a)
+        |       |   `-- TYPE(real)
+        |       `-- PARAM_LIST
+        |           |-- PARAM
+        |           |   |-- IDENTIFIER(b)
+        |           |   `-- TYPE(real)
+        |           `-- PARAM_LIST
+        |               |-- PARAM
+        |               |   |-- IDENTIFIER(c)
+        |               |   `-- TYPE(real)
+        |               `-- PARAM_LIST
+        |                   `-- PARAM
+        |                       |-- IDENTIFIER(d)
+        |                       `-- TYPE(int)
+        `-- BODY
+            |-- DECLARATIONS
+            |   |-- VAR_LIST
+            |   |   |-- VAR_DECL
+            |   |   |   |-- IDENTIFIER(a1)
+            |   |   |   `-- TYPE(real)
+            |   |   `-- VAR_LIST
+            |   |       `-- VAR_DECL
+            |   |           |-- IDENTIFIER(a2)
+            |   |           `-- TYPE(real)
+            |   `-- VAR_LIST
+            |       `-- VAR_DECL
+            |           |-- IDENTIFIER(a3)
+            |           `-- TYPE(int)
+            `-- STATEMENTS
+                |-- IF_ELSE_STTMNT
+                |   |-- GTE
+                |   |   |-- IDENTIFIER(a)
+                |   |   `-- IDENTIFIER(b)
+                |   `-- IF_BRANCHES
+                |       |-- THEN
+                |       |   `-- ASSIGN_STTMNT
+                |       |       |-- IDENTIFIER(a1)
+                |       |       `-- MUL
+                |       |           |-- IDENTIFIER(d)
+                |       |           `-- INT_LITERAL(5)
+                |       `-- ELSE
+                |           `-- ASSIGN_STTMNT
+                |               |-- IDENTIFIER(a2)
+                |               `-- SUB
+                |                   |-- IDENTIFIER(c)
+                |                   `-- INT_LITERAL(77)
+                `-- ASSIGN_STTMNT
+                    |-- IDENTIFIER(a3)
+                    `-- IDENTIFIER(d)
