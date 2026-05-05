@@ -424,10 +424,10 @@ while_sttmnt:
     ;
 block_sttmnt:
     '{' body '}' {
-        $$ = $2;
+        $$ = createNode("BLOCK", NULL);
+        addLeftChild($$, $2);
     }
     ;
-
 return_sttmnt:
     RETURN expression ';'{
         $$ = createNode("RETURN_STTMNT",NULL);

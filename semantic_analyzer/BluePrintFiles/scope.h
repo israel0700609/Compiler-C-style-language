@@ -81,7 +81,7 @@ Symbol* getVar(Scope* scope, char* name); // Search the income var name in the i
 Symbol* getLocalVar(Scope* scope, char* name); //Search the income local var name in the income scope and return the symbol
 SymKind* getLocalKind(Scope* scope, char* name, SymKind kind); // Search the income symkind in this local scope 
 
-TypeInfo getExprType(Scope* scope, ASTNode* node); // Evaluate the exp type  (must be done by yuval)
+TypeInfo getExprType(Scope* scope, Node* node); // Evaluate the exp type  (must be done by yuval)
 Symbol* getLastReturn(Scope* scope); // Searching for the last return(func) scope
 
 
