@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "scope.h"
-#include "ast.h"
-#include "checks/utils.c"
+#include "../../BluePrintFiles/scope.h"
+#include "../../../ast/ast.h"
 
+static void checkNodeSemantics(Node* node, Scope* currentScope);
 int foundMainProcedure = 0;
 static const char* nodeType(Node* node);
 static Node* leftChild(Node* node);
@@ -65,9 +65,24 @@ static void checkFunctionOrProcedure(Node* node, Scope* currentScope) {
     if (strcmp(nodeType(node), "FUNCTION") == 0 && retInfo.base == VAL_STRING) {
         semanticError("Semantic Error: Return type cannot be string in function '%s'.", nameNode->value);
     }
-    addSymbolForName(currentScope, nameNode->value,
-                     strcmp(nodeType(node), "FUNCTION") == 0 ? SYM_FUNC : SYM_PROC,
-                     retInfo);
+    SymKind funcKind = strcmp(nodeType(node), "FUNCTION") == 0 ? SYM_FUNC : SYM_PROC;
+    addSymbolForName(currentScope, nameNode->value, funcKind, retInfo);
+
+    Symbol* funcSym = getSymbol(currentScope, nameNode->value, funcKind);
+    if (funcSym) {
+        int paramCount = 0;
+        for (Node* listNode = paramList; listNode != NULL; listNode = rightChild(listNode)) {
+            if (strcmp(nodeType(listNode), "PARAM_LIST") != 0) continue;
+            Node* paramNode = leftChild(listNode);
+            if (!paramNode || strcmp(nodeType(paramNode), "PARAM") != 0) continue;
+            Node* idNode = paramIdentifier(paramNode);
+            Node* typeNode = paramType(paramNode);
+            if (!idNode || !idNode->value) continue;
+            addParam(&funcSym->details.func.params, idNode->value, typeInfoFromNode(typeNode));
+            paramCount++;
+        }
+        funcSym->details.func.count = paramCount;
+    }
 
     Scope* functionScope = enterScope(currentScope);
     checkParamList(paramList, functionScope);

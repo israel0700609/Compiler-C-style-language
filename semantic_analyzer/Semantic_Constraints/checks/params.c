@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "scope.h"
-#include "ast.h"
-#include "checks/utils.c"
+#include "../../BluePrintFiles/scope.h"
+#include "../../../ast/ast.h"
 
 static const char* nodeType(Node* node);
 static Node* leftChild(Node* node);

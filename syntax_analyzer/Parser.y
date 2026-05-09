@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ast/ast.h"
+#include "semantic_analyzer/Semantic_Constraints/checkSemantics.c"
+
 extern int yylineno;
 extern char* yytext;
 extern Node* root;
@@ -447,6 +449,7 @@ int main() {
     if (yyparse() == 0) {
         printf("Success!\n\n");
         printf("=== Abstract Syntax Tree ===\n");
+        runSemanticChecks(root);
         printTree(root);
         freeTree(root);
     } 
