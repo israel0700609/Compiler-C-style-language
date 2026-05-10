@@ -1,4 +1,4 @@
-func mix(a : int, b : bool) return int { return a; }
+func mix(a : int; b : bool) return int { return a; }
 
 proc Main() {
     var result : int;

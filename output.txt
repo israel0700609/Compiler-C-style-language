@@ -1,3 +1,36 @@
 Starting Parser...
-Syntax Error on line 1: syntax error: unexpected token ',' 
- 
+Parsed program successfully!
+Success!
+
+=== Abstract Syntax Tree ===
+PROGRAM
+`-- Top level
+    |-- FUNCTION
+    |   |-- IDENTIFIER(mix)
+    |   |   |-- PARAM_LIST
+    |   |   |   |-- PARAM
+    |   |   |   |   |-- IDENTIFIER(a)
+    |   |   |   |   `-- TYPE(int)
+    |   |   |   `-- PARAM_LIST
+    |   |   |       `-- PARAM
+    |   |   |           |-- IDENTIFIER(b)
+    |   |   |           `-- TYPE(bool)
+    |   |   `-- TYPE(int)
+    |   `-- RETURN_STTMNT
+    |       `-- IDENTIFIER(a)
+    `-- Top Level
+        `-- PROC
+            |-- IDENTIFIER(Main)
+            `-- BODY
+                |-- VAR_LIST
+                |   `-- VAR_DECL
+                |       |-- IDENTIFIER(result)
+                |       `-- TYPE(int)
+                `-- ASSIGN_STTMNT
+                    |-- IDENTIFIER(result)
+                    `-- FUNC_CALL
+                        |-- IDENTIFIER(mix)
+                        `-- ARGUMENTS_LIST
+                            |-- INT_LITERAL(5)
+                            `-- ARGUMENTS_LIST
+                                `-- BOOL_LITERAL(true)

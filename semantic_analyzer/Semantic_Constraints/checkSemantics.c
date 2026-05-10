@@ -18,8 +18,10 @@ void runSemanticChecks(Node* root) {
 
     if (!foundMainProcedure) {
         printf("Semantic Error: Procedure 'Main' is missing from the program.\n");
+        errorOccurred = 1;
+    }
+    if (errorOccurred) {
         exit(1);
     }
-
     exitScope(globalScope);
 }

@@ -4,6 +4,8 @@
 #include "../../BluePrintFiles/scope.h"
 #include "../../../ast/ast.h"
 
+int errorOccurred = 0;
+
 static void semanticError(const char* message, const char* name) {
     if (name) {
         printf(message, name);
@@ -11,7 +13,7 @@ static void semanticError(const char* message, const char* name) {
         printf("%s", message);
     }
     printf("\n");
-    exit(1);
+    errorOccurred = 1;
 }
 
 static const char* nodeType(Node* node) {
