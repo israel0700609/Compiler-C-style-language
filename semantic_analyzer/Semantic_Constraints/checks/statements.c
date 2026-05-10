@@ -4,23 +4,6 @@
 #include "../../BluePrintFiles/scope.h"
 #include "../../../ast/ast.h"
 
-static const char* nodeType(Node* node);
-static Node* leftChild(Node* node);
-static Node* rightChild(Node* node);
-static void semanticError(const char* message, const char* name);
-static TypeInfo getLhsType(Scope* scope, Node* lhsNode);
-
-void checkArithmeticOp(Scope* scope, Node* node);
-void checkLogicalOp(Scope* scope, Node* node);
-void checkRelationalOp(Scope* scope, Node* node);
-void checkEqualityOp(Scope* scope, Node* node);
-void checkPointerArithmetic(Scope* scope, Node* node);
-void checkAddressOfOp(Scope* scope, Node* node);
-void checkDereferenceOp(Scope* scope, Node* node);
-void checkStrlenOp(Scope* scope, Node* node);
-void checkNotOp(Scope* scope, Node* node);
-void checkUnaryArithOp(Scope* scope, Node* node);
-
 static void checkIdentifierUsage(Node* node, Scope* currentScope) {
     if (!node || !node->value) {
         return;
