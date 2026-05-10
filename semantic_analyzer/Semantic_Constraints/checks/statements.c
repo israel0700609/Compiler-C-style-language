@@ -10,6 +10,17 @@ static Node* rightChild(Node* node);
 static void semanticError(const char* message, const char* name);
 static TypeInfo getLhsType(Scope* scope, Node* lhsNode);
 
+void checkArithmeticOp(Scope* scope, Node* node);
+void checkLogicalOp(Scope* scope, Node* node);
+void checkRelationalOp(Scope* scope, Node* node);
+void checkEqualityOp(Scope* scope, Node* node);
+void checkPointerArithmetic(Scope* scope, Node* node);
+void checkAddressOfOp(Scope* scope, Node* node);
+void checkDereferenceOp(Scope* scope, Node* node);
+void checkStrlenOp(Scope* scope, Node* node);
+void checkNotOp(Scope* scope, Node* node);
+void checkUnaryArithOp(Scope* scope, Node* node);
+
 static void checkIdentifierUsage(Node* node, Scope* currentScope) {
     if (!node || !node->value) {
         return;
@@ -221,11 +232,13 @@ static void checkNodeSemantics(Node* node, Scope* currentScope) {
     if(strcmp(nodeType(node),"IF_STTMNT") == 0){
         checkBoolCondition(node,currentScope);
         checkNodeSemantics(rightChild(node), currentScope);
+        return;
     }
 
     if(strcmp(nodeType(node),"IF_ELSE_STTMNT") == 0){
         checkBoolCondition(node,currentScope);
         checkNodeSemantics(rightChild(node), currentScope);
+        return;
     }
 
     if(strcmp(nodeType(node),"WHILE_STTMNT") == 0){
@@ -250,7 +263,64 @@ static void checkNodeSemantics(Node* node, Scope* currentScope) {
         checkAssignment(node,currentScope);
         return;
     }
-    
+
+    if (strcmp(nodeType(node), "STRLEN") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkStrlenOp(currentScope, node);
+        return;
+    }
+    if (strcmp(nodeType(node), "NOT") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkNotOp(currentScope, node);
+        return;
+    }
+    if (strcmp(nodeType(node), "NEG") == 0 || strcmp(nodeType(node), "POS") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkUnaryArithOp(currentScope, node);
+        return;
+    }
+    if (strcmp(nodeType(node), "DEREF") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkDereferenceOp(currentScope, node);
+        return;
+    }
+    if (strcmp(nodeType(node), "ADDR_OF") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkAddressOfOp(currentScope, node);
+        return;
+    }
+    if (strcmp(nodeType(node), "ADD") == 0 || strcmp(nodeType(node), "SUB") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkNodeSemantics(rightChild(node), currentScope);
+        checkPointerArithmetic(currentScope, node);
+        return;
+    }
+    if (strcmp(nodeType(node), "MUL") == 0 || strcmp(nodeType(node), "DIV") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkNodeSemantics(rightChild(node), currentScope);
+        checkArithmeticOp(currentScope, node);
+        return;
+    }
+    if (strcmp(nodeType(node), "AND") == 0 || strcmp(nodeType(node), "OR") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkNodeSemantics(rightChild(node), currentScope);
+        checkLogicalOp(currentScope, node);
+        return;
+    }
+    if (strcmp(nodeType(node), "GT") == 0 || strcmp(nodeType(node), "LT")  == 0 ||
+        strcmp(nodeType(node), "GTE") == 0 || strcmp(nodeType(node), "LTE") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkNodeSemantics(rightChild(node), currentScope);
+        checkRelationalOp(currentScope, node);
+        return;
+    }
+    if (strcmp(nodeType(node), "EQ") == 0 || strcmp(nodeType(node), "NEQ") == 0) {
+        checkNodeSemantics(leftChild(node), currentScope);
+        checkNodeSemantics(rightChild(node), currentScope);
+        checkEqualityOp(currentScope, node);
+        return;
+    }
+
     checkNodeSemantics(leftChild(node), currentScope);
     checkNodeSemantics(rightChild(node), currentScope);
 }

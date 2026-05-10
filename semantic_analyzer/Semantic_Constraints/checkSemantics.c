@@ -9,6 +9,7 @@
 #include "checks/params.c"
 #include "checks/calls.c"
 #include "checks/statements.c"
+#include "checks/expressions.c"
 
 void runSemanticChecks(Node* root) {
     Scope* globalScope = enterScope(NULL);

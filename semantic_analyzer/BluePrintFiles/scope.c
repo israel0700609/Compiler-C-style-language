@@ -135,153 +135,6 @@ Symbol* getLastReturn(Scope* scope) {
     return NULL;
 }
 
-// ---------------------------------------------------------
-// Rule 16: Expression type checking helpers
-// ---------------------------------------------------------
-
-static TypeInfo checkArithmeticOp(Scope* scope, Node* node) {
-    TypeInfo unknown = {VAL_UNKNOWN, 0};
-    TypeInfo left  = getExprType(scope, node->left);
-    TypeInfo right = getExprType(scope, node->right);
-    if (left.base == VAL_UNKNOWN || right.base == VAL_UNKNOWN) return unknown;
-    if (left.is_ptr || right.is_ptr) {
-        printf("Semantic Error: '*'/'/' operators cannot be applied to pointers.\n");
-        exit(1);
-    }
-    if ((left.base != VAL_INT && left.base != VAL_REAL) ||
-        (right.base != VAL_INT && right.base != VAL_REAL)) {
-        printf("Semantic Error: '*'/'/' operators require int or real operands.\n");
-        exit(1);
-    }
-    TypeInfo r = {(left.base == VAL_REAL || right.base == VAL_REAL) ? VAL_REAL : VAL_INT, 0};
-    return r;
-}
-
-static TypeInfo checkLogicalOp(Scope* scope, Node* node) {
-    TypeInfo left  = getExprType(scope, node->left);
-    TypeInfo right = getExprType(scope, node->right);
-    TypeInfo boolType = {VAL_BOOL, 0};
-    if (left.base == VAL_UNKNOWN || right.base == VAL_UNKNOWN) return boolType;
-    if (left.base != VAL_BOOL || right.base != VAL_BOOL) {
-        printf("Semantic Error: '&&'/'||' operators require bool operands.\n");
-        exit(1);
-    }
-    return boolType;
-}
-
-static TypeInfo checkRelationalOp(Scope* scope, Node* node) {
-    TypeInfo left  = getExprType(scope, node->left);
-    TypeInfo right = getExprType(scope, node->right);
-    TypeInfo boolType = {VAL_BOOL, 0};
-    if (left.base == VAL_UNKNOWN || right.base == VAL_UNKNOWN) return boolType;
-    if ((left.base != VAL_INT && left.base != VAL_REAL) ||
-        (right.base != VAL_INT && right.base != VAL_REAL)) {
-        printf("Semantic Error: Comparison operators '<','<=','>','>=' require int or real operands.\n");
-        exit(1);
-    }
-    return boolType;
-}
-
-static TypeInfo checkEqualityOp(Scope* scope, Node* node) {
-    TypeInfo left  = getExprType(scope, node->left);
-    TypeInfo right = getExprType(scope, node->right);
-    TypeInfo boolType = {VAL_BOOL, 0};
-    if (left.base == VAL_UNKNOWN || right.base == VAL_UNKNOWN) return boolType;
-    if ((left.base == VAL_NULL && right.is_ptr) || (right.base == VAL_NULL && left.is_ptr))
-        return boolType;
-    if (!matchTypes(left, right)) {
-        printf("Semantic Error: '=='/'!=' requires operands of the same type.\n");
-        exit(1);
-    }
-    if (left.base == VAL_STRING) {
-        printf("Semantic Error: Cannot compare string types with '=='/'!='.\n");
-        exit(1);
-    }
-    return boolType;
-}
-
-// ---------------------------------------------------------
-// Rule 17: Pointer arithmetic — only int can be added/subtracted from a char pointer
-// ---------------------------------------------------------
-
-static TypeInfo checkPointerArithmetic(Scope* scope, Node* node) {
-    TypeInfo unknown = {VAL_UNKNOWN, 0};
-    TypeInfo left  = getExprType(scope, node->left);
-    TypeInfo right = getExprType(scope, node->right);
-    if (left.base == VAL_UNKNOWN || right.base == VAL_UNKNOWN) return unknown;
-
-    int isSub = (strcmp(node->type, "SUB") == 0);
-
-    if (left.is_ptr) {
-        if (left.base != VAL_CHAR) {
-            printf("Semantic Error: Pointer arithmetic is only supported for char pointers.\n");
-            exit(1);
-        }
-        if (right.base != VAL_INT || right.is_ptr) {
-            printf("Semantic Error: Can only add or subtract int from a char pointer.\n");
-            exit(1);
-        }
-        return left;
-    }
-
-    if (right.is_ptr && !isSub) {
-        if (right.base != VAL_CHAR) {
-            printf("Semantic Error: Pointer arithmetic is only supported for char pointers.\n");
-            exit(1);
-        }
-        if (left.base != VAL_INT || left.is_ptr) {
-            printf("Semantic Error: Can only add or subtract int from a char pointer.\n");
-            exit(1);
-        }
-        return right;
-    }
-
-    if ((left.base != VAL_INT && left.base != VAL_REAL) ||
-        (right.base != VAL_INT && right.base != VAL_REAL)) {
-        printf("Semantic Error: '+'/'-' operators require int or real operands.\n");
-        exit(1);
-    }
-    TypeInfo r = {(left.base == VAL_REAL || right.base == VAL_REAL) ? VAL_REAL : VAL_INT, 0};
-    return r;
-}
-
-// ---------------------------------------------------------
-// Rule 18: '&' operator only on int, real, char variables or string[i] elements
-// ---------------------------------------------------------
-
-static TypeInfo checkAddressOfOp(Scope* scope, Node* node) {
-    TypeInfo unknown = {VAL_UNKNOWN, 0};
-    Node* inner = node->left;
-    if (!inner) return unknown;
-    TypeInfo innerType = getExprType(scope, inner);
-    if (innerType.base == VAL_UNKNOWN) return unknown;
-
-    if (strcmp(inner->type, "ARRAY_ACCESS") == 0) {
-        TypeInfo r = {VAL_CHAR, 1}; return r;
-    }
-    if (strcmp(inner->type, "IDENTIFIER") == 0 && !innerType.is_ptr) {
-        if (innerType.base == VAL_INT || innerType.base == VAL_REAL || innerType.base == VAL_CHAR) {
-            TypeInfo r = {innerType.base, 1}; return r;
-        }
-    }
-    printf("Semantic Error: '&' operator can only be applied to int, real, char variables or string elements.\n");
-    exit(1);
-}
-
-// ---------------------------------------------------------
-// Rule 19: '^' operator only on pointers
-// ---------------------------------------------------------
-
-static TypeInfo checkDereferenceOp(Scope* scope, Node* node) {
-    TypeInfo unknown = {VAL_UNKNOWN, 0};
-    TypeInfo innerType = getExprType(scope, node->left);
-    if (innerType.base == VAL_UNKNOWN) return unknown;
-    if (!innerType.is_ptr) {
-        printf("Semantic Error: Dereference operator '^' can only be applied to pointers.\n");
-        exit(1);
-    }
-    TypeInfo r = {innerType.base, 0}; return r;
-}
 
 TypeInfo getExprType(Scope* scope, Node* node) {
     TypeInfo unknown = {VAL_UNKNOWN, 0};
@@ -312,51 +165,42 @@ TypeInfo getExprType(Scope* scope, Node* node) {
         return sym->type;
     }
 
-    if (strcmp(t, "STRLEN") == 0) {
-        TypeInfo innerType = getExprType(scope, node->left);
-        if (innerType.base != VAL_STRING && innerType.base != VAL_UNKNOWN) {
-            printf("Semantic Error: '|...|' operator can only be applied to strings.\n");
-            exit(1);
-        }
-        TypeInfo r = {VAL_INT, 0}; return r;
+    if (strcmp(t, "STRLEN") == 0) { TypeInfo r = {VAL_INT,  0}; return r; }
+    if (strcmp(t, "NOT")    == 0) { TypeInfo r = {VAL_BOOL, 0}; return r; }
+
+    if (strcmp(t, "NEG") == 0 || strcmp(t, "POS") == 0)
+        return getExprType(scope, node->left);
+
+    if (strcmp(t, "DEREF") == 0) {
+        TypeInfo inner = getExprType(scope, node->left);
+        TypeInfo r = {inner.base, 0}; return r;
+    }
+    if (strcmp(t, "ADDR_OF") == 0) {
+        TypeInfo inner = getExprType(scope, node->left);
+        TypeInfo r = {inner.base, 1}; return r;
     }
 
-    if (strcmp(t, "NOT") == 0) {
-        TypeInfo innerType = getExprType(scope, node->left);
-        if (innerType.base != VAL_BOOL && innerType.base != VAL_UNKNOWN) {
-            printf("Semantic Error: '!' operator can only be applied to bool.\n");
-            exit(1);
-        }
+    if (strcmp(t, "ADD") == 0 || strcmp(t, "SUB") == 0) {
+        TypeInfo left = getExprType(scope, node->left);
+        TypeInfo right = getExprType(scope, node->right);
+        if (left.is_ptr) return left;
+        if (right.is_ptr) return right;
+        TypeInfo r = {(left.base == VAL_REAL || right.base == VAL_REAL) ? VAL_REAL : VAL_INT, 0};
+        return r;
+    }
+    if (strcmp(t, "MUL") == 0 || strcmp(t, "DIV") == 0) {
+        TypeInfo left = getExprType(scope, node->left);
+        TypeInfo right = getExprType(scope, node->right);
+        TypeInfo r = {(left.base == VAL_REAL || right.base == VAL_REAL) ? VAL_REAL : VAL_INT, 0};
+        return r;
+    }
+
+    if (strcmp(t, "AND") == 0 || strcmp(t, "OR")  == 0 ||
+        strcmp(t, "GT")  == 0 || strcmp(t, "LT")  == 0 ||
+        strcmp(t, "GTE") == 0 || strcmp(t, "LTE") == 0 ||
+        strcmp(t, "EQ")  == 0 || strcmp(t, "NEQ") == 0) {
         TypeInfo r = {VAL_BOOL, 0}; return r;
     }
-
-    if (strcmp(t, "NEG") == 0 || strcmp(t, "POS") == 0) {
-        TypeInfo innerType = getExprType(scope, node->left);
-        if (innerType.base != VAL_INT && innerType.base != VAL_REAL && innerType.base != VAL_UNKNOWN) {
-            printf("Semantic Error: Unary '+'/'-' can only be applied to int or real.\n");
-            exit(1);
-        }
-        return innerType;
-    }
-
-    if (strcmp(t, "DEREF") == 0)   return checkDereferenceOp(scope, node);   // Rule 19
-    if (strcmp(t, "ADDR_OF") == 0) return checkAddressOfOp(scope, node);     // Rule 18
-
-    if (strcmp(t, "ADD") == 0 || strcmp(t, "SUB") == 0)
-        return checkPointerArithmetic(scope, node);                           // Rule 17
-
-    if (strcmp(t, "MUL") == 0 || strcmp(t, "DIV") == 0)
-        return checkArithmeticOp(scope, node);                                // Rule 16
-
-    if (strcmp(t, "AND") == 0 || strcmp(t, "OR") == 0)
-        return checkLogicalOp(scope, node);                                   // Rule 16
-
-    if (strcmp(t, "GT") == 0 || strcmp(t, "LT") == 0 ||
-        strcmp(t, "GTE") == 0 || strcmp(t, "LTE") == 0)
-        return checkRelationalOp(scope, node);                                // Rule 16
-
-    if (strcmp(t, "EQ") == 0 || strcmp(t, "NEQ") == 0)
-        return checkEqualityOp(scope, node);                                  // Rule 16
 
     return unknown;
 }
