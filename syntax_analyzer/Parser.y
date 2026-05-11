@@ -123,6 +123,8 @@ non_empty_param_list:
         Node* original_type = $3->left->right;
         Node* cloned_type = createNode(original_type->type, original_type->value);
         
+        cloned_type->lineno = original_type->lineno;
+
         Node* param = createNode("PARAM", NULL);
         addLeftChild(param, createNode("IDENTIFIER", $1));
         addRightChild(param, cloned_type); /* משתמשים בשיבוט! */
@@ -320,6 +322,8 @@ var_decl_list:
         Node* original_type = $3->left->right;
         Node* cloned_type = createNode(original_type->type, original_type->value);
         
+        cloned_type->lineno = original_type->lineno;
+
         Node* id = createNode("VAR_DECL", NULL);
         addLeftChild(id, createNode("IDENTIFIER", $1));
         addRightChild(id, cloned_type); 

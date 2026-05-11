@@ -10,7 +10,7 @@ static const char* nodeType(Node* node);
 static Node* leftChild(Node* node);
 static Node* rightChild(Node* node);
 static int checkSignature(Scope* scope, Node* callNode, Symbol* symTarget, const char** errorMessage);
-static void semanticError(const char* message, const char* name);
+static void semanticError(const char* message, const char* name, int lineno);
 
 static void checkCallTarget(Node* callNode, Scope* currentScope, const char* defaultErrorMessage) {
     Node* idNode = leftChild(callNode);
@@ -24,14 +24,14 @@ static void checkCallTarget(Node* callNode, Scope* currentScope, const char* def
     Symbol* targetSym = symFunc ? symFunc : symProc;
 
     if (targetSym == NULL) {
-        semanticError(defaultErrorMessage, idNode->value);
+        semanticError(defaultErrorMessage, idNode->value, callNode->lineno);
         return; 
     }
 
     const char* errorMessage = NULL; 
 
     if (checkSignature(currentScope, callNode, targetSym, &errorMessage) != 0) {
-        semanticError(errorMessage, NULL); 
+        semanticError(errorMessage, NULL, callNode->lineno); 
     }
 }
 
@@ -47,15 +47,15 @@ static void checkFunctionOrProcedure(Node* node, Scope* currentScope) {
 
     if (strcmp(nameNode->value, "Main") == 0) {
         if (foundMainProcedure) {
-            semanticError("Semantic Error: 'Main' cannot be declared more than once.", NULL);
+            semanticError("Semantic Error: 'Main' cannot be declared more than once.", NULL, node->lineno);
         }
 
         if (strcmp(nodeType(node), "FUNCTION") == 0) {
-            semanticError("Semantic Error: 'Main' must be a procedure, not a function.", NULL);
+            semanticError("Semantic Error: 'Main' must be a procedure, not a function.", NULL, node->lineno);
         }
 
         if (paramList != NULL) {
-            semanticError("Semantic Error: Procedure 'Main' cannot take arguments.", NULL);
+            semanticError("Semantic Error: Procedure 'Main' cannot take arguments.", NULL, node->lineno);
         }
 
         foundMainProcedure = 1;
@@ -63,10 +63,10 @@ static void checkFunctionOrProcedure(Node* node, Scope* currentScope) {
     TypeInfo retInfo = typeInfoFromNode(returnType);
 
     if (strcmp(nodeType(node), "FUNCTION") == 0 && retInfo.base == VAL_STRING) {
-        semanticError("Semantic Error: Return type cannot be string in function '%s'.", nameNode->value);
+        semanticError("Semantic Error: Return type cannot be string in function '%s'.", nameNode->value,node->lineno);
     }
     SymKind funcKind = strcmp(nodeType(node), "FUNCTION") == 0 ? SYM_FUNC : SYM_PROC;
-    addSymbolForName(currentScope, nameNode->value, funcKind, retInfo);
+    addSymbolForName(currentScope, nameNode->value, funcKind, retInfo, node->lineno);
 
     Symbol* funcSym = getSymbol(currentScope, nameNode->value, funcKind);
     if (funcSym) {

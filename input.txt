@@ -1,6 +1,7 @@
-func mix(a : int; b : bool) return int { return a; }
+func mix(a : real; b : bool) return real { return a; }
 
 proc Main() {
-    var result : int;
-    result = mix(5, true);
+    var result : real;
+    result = mix(5.3, true) + 5.4;
+    
 }

@@ -10,12 +10,12 @@ PROGRAM
     |   |   |-- PARAM_LIST
     |   |   |   |-- PARAM
     |   |   |   |   |-- IDENTIFIER(a)
-    |   |   |   |   `-- TYPE(int)
+    |   |   |   |   `-- TYPE(real)
     |   |   |   `-- PARAM_LIST
     |   |   |       `-- PARAM
     |   |   |           |-- IDENTIFIER(b)
     |   |   |           `-- TYPE(bool)
-    |   |   `-- TYPE(int)
+    |   |   `-- TYPE(real)
     |   `-- RETURN_STTMNT
     |       `-- IDENTIFIER(a)
     `-- Top Level
@@ -25,12 +25,14 @@ PROGRAM
                 |-- VAR_LIST
                 |   `-- VAR_DECL
                 |       |-- IDENTIFIER(result)
-                |       `-- TYPE(int)
+                |       `-- TYPE(real)
                 `-- ASSIGN_STTMNT
                     |-- IDENTIFIER(result)
-                    `-- FUNC_CALL
-                        |-- IDENTIFIER(mix)
-                        `-- ARGUMENTS_LIST
-                            |-- INT_LITERAL(5)
-                            `-- ARGUMENTS_LIST
-                                `-- BOOL_LITERAL(true)
+                    `-- ADD
+                        |-- FUNC_CALL
+                        |   |-- IDENTIFIER(mix)
+                        |   `-- ARGUMENTS_LIST
+                        |       |-- REAL_LITERAL(5.3)
+                        |       `-- ARGUMENTS_LIST
+                        |           `-- BOOL_LITERAL(true)
+                        `-- REAL_LITERAL(5.4)

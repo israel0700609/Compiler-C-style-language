@@ -6,12 +6,13 @@
 
 int errorOccurred = 0;
 
-static void semanticError(const char* message, const char* name) {
+static void semanticError(const char* message, const char* name, int lineno) {
     if (name) {
         printf(message, name);
     } else {
         printf("%s", message);
     }
+    printf(" line(%d)",lineno);
     printf("\n");
     errorOccurred = 1;
 }
@@ -56,12 +57,12 @@ static Node* paramType(Node* paramNode) {
     return rightChild(paramNode);
 }
 
-static void addSymbolForName(Scope* scope, const char* name, SymKind kind, TypeInfo typeInfo) {
+static void addSymbolForName(Scope* scope, const char* name, SymKind kind, TypeInfo typeInfo, int lineno) {
     if (isLocal(scope, (char*)name)) {
         if (kind == SYM_FUNC || kind == SYM_PROC) {
-            semanticError("Semantic Error: Function or Procedure '%s' is already defined.", name);
+            semanticError("Semantic Error: Function or Procedure '%s' is already defined.", name,lineno);
         } else {
-            semanticError("Semantic Error: Variable '%s' is already defined in the current scope.", name);
+            semanticError("Semantic Error: Variable '%s' is already defined in the current scope.", name,lineno);
         }
     }
 
@@ -177,7 +178,7 @@ static TypeInfo getLhsType(Scope* scope, Node* lhsNode) {
             innerType.is_ptr = 0;
             return innerType;
         } else {
-            semanticError("Semantic Error: Cannot dereference a non-pointer.", NULL);
+            semanticError("Semantic Error: Cannot dereference a non-pointer.", NULL,lhsNode->lineno);
             return unknownType;
         }
     }
