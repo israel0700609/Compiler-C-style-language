@@ -10,7 +10,7 @@ static void checkIdentifierUsage(Node* node, Scope* currentScope) {
     }
 
     if (getVar(currentScope, node->value) == NULL) {
-        semanticError("Semantic Error: Variable '%s' is used before it is defined.", node->value);
+        semanticError("Semantic Error: Variable '%s' is used before it is defined.", node->value,node->lineno);
     }
 }
 
@@ -20,17 +20,17 @@ static void checkValidReturnType(Node* node, Scope* scope) {
     Symbol* func = getLastReturn(scope);
 
     if (!func) {
-        semanticError("Semantic Error: 'return' statement used outside of any function.", NULL);
+        semanticError("Semantic Error: 'return' statement used outside of any function.", NULL, node->lineno);
         return; 
     }
 
     if (func->kind == SYM_FUNC && func->type.base == VAL_STRING) {
-        semanticError("Semantic Error: Function '%s' cannot return a string.", func->name);
+        semanticError("Semantic Error: Function '%s' cannot return a string.", func->name, node->lineno);
     }
 
     if (func->kind == SYM_PROC) {
         if (expr != NULL) 
-            semanticError("Semantic Error: Procedure '%s' cannot return a value.", func->name);
+            semanticError("Semantic Error: Procedure '%s' cannot return a value.", func->name, node->lineno);
         return; 
     }
 
@@ -39,7 +39,7 @@ static void checkValidReturnType(Node* node, Scope* scope) {
         if (exprType.base == VAL_NULL && func->type.is_ptr) 
             return;
         
-        semanticError("Semantic Error: Mismatch in function '%s' return type.", func->name);
+        semanticError("Semantic Error: Mismatch in function '%s' return type.", func->name, node->lineno);
     }
 }
 
@@ -47,13 +47,13 @@ static void checkValidReturnType(Node* node, Scope* scope) {
 static void checkBoolCondition(Node* node, Scope* scope){
     Node* expr = leftChild(node);
     if(expr == NULL){
-        semanticError("Semantic Error: must define condition.", NULL); 
+        semanticError("Semantic Error: must define condition.", NULL, node->lineno); 
     }
     
     TypeInfo conditionType = getExprType(scope, expr);
     
     if(conditionType.base != VAL_BOOL && conditionType.base != VAL_UNKNOWN){
-        semanticError("Semantic Error: condition must be of type bool.", NULL);
+        semanticError("Semantic Error: condition must be of type bool.", NULL, node->lineno);
     }
 }
 
@@ -61,24 +61,24 @@ static void checkForBoolCondition(Node* node, Scope* scope){
     Node* header = leftChild(node);
 
     if(header == NULL){
-        semanticError("Semantic Error: Missing for header.",NULL);
+        semanticError("Semantic Error: Missing for header.",NULL, node->lineno);
     }
     
     Node* cond_update = rightChild(header);
     
     if(cond_update == NULL){
-        semanticError("Semantic Error: Missing for loop condition update.",NULL);
+        semanticError("Semantic Error: Missing for loop condition update.",NULL, node->lineno);
     }
 
     Node* expr = leftChild(cond_update);
     
     if(expr == NULL){
-        semanticError("Semantic Error: Missing for loop condition expression.",NULL);
+        semanticError("Semantic Error: Missing for loop condition expression.",NULL, node->lineno);
     }
     
     TypeInfo conditionType = getExprType(scope,expr);
     if(conditionType.base != VAL_BOOL && conditionType.base != VAL_UNKNOWN){
-        semanticError("Semantic Error: condition must be of type bool.", NULL);
+        semanticError("Semantic Error: condition must be of type bool.", NULL, node->lineno);
     }
 }
 
@@ -87,17 +87,17 @@ static void checkStringId(Node* node, Scope* scope){
     Node* idNode = leftChild(node);
 
     if(idNode == NULL){
-        semanticError("Semantic Error: Missing identifier.", NULL);
+        semanticError("Semantic Error: Missing identifier.", NULL, node->lineno);
     }
     
     Symbol* sym = getVar(scope, idNode->value);
     if(sym == NULL){
-        semanticError("Semantic Error: Variable '%s' is used but never declared.", idNode->value);
+        semanticError("Semantic Error: Variable '%s' is used but never declared.", idNode->value, node->lineno);
     }
 
     TypeInfo type = sym->type;
     if(type.base != VAL_STRING){
-        semanticError("Semantic Error: Cannot access non-string type variable '%s'.", idNode->value);
+        semanticError("Semantic Error: Cannot access non-string type variable '%s'.", idNode->value, node->lineno);
     }
 }
 
@@ -109,7 +109,7 @@ static void checkValidIndexType(Node* node, Scope* scope){
     TypeInfo indexType = getExprType(scope, indexExpr);
 
     if (indexType.base != VAL_INT && indexType.base != VAL_UNKNOWN) {
-        semanticError("Semantic Error: String index must be of type int.", NULL);
+        semanticError("Semantic Error: String index must be of type int.", NULL, node->lineno);
     }
 }
 
@@ -130,14 +130,14 @@ static void checkAssignment(Node* node, Scope* scope) {
 
     if (rhsType.base == VAL_NULL) {
         if (lhsType.is_ptr == 0 || (lhsType.base != VAL_INT && lhsType.base != VAL_REAL && lhsType.base != VAL_CHAR)) {
-            semanticError("Semantic Error: 'null' can only be assigned to int*, real*, or char* pointers.", NULL);        
+            semanticError("Semantic Error: 'null' can only be assigned to int*, real*, or char* pointers.", NULL, node->lineno);        
         }
         return; 
     }
 
 
     if (!matchTypes(lhsType, rhsType)) {
-        semanticError("Semantic Error: Type mismatch in assignment.", NULL);
+        semanticError("Semantic Error: Type mismatch in assignment.", NULL, node->lineno);
     }
 }
 
@@ -175,7 +175,7 @@ static void checkNodeSemantics(Node* node, Scope* currentScope) {
         Node* typeNode = rightChild(node);
 
         if (idNode && strcmp(nodeType(idNode), "IDENTIFIER") == 0 && idNode->value) {
-            addSymbolForName(currentScope, idNode->value, SYM_VAR, typeInfoFromNode(typeNode));
+            addSymbolForName(currentScope, idNode->value, SYM_VAR, typeInfoFromNode(typeNode), node->lineno);
         }
         return;
     }
@@ -185,7 +185,7 @@ static void checkNodeSemantics(Node* node, Scope* currentScope) {
         Node* typeNode = rightChild(node);
 
         if (idNode && strcmp(nodeType(idNode), "IDENTIFIER") == 0 && idNode->value) {
-            addSymbolForName(currentScope, idNode->value, SYM_PARAM, typeInfoFromNode(typeNode));
+            addSymbolForName(currentScope, idNode->value, SYM_PARAM, typeInfoFromNode(typeNode), node->lineno);
         }
         return;
     }

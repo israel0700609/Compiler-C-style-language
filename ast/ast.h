@@ -17,6 +17,7 @@ extern Node *root;
 Node *createNode(const char *type, const char *value);
 void addLeftChild(Node *parent, Node *child);
 void addRightChild(Node *parent, Node *child);
+void addLineNo(Node * node, int lineno);
 void printTree(Node *node);
 void freeTree(Node *node);
 

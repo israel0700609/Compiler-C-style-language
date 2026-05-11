@@ -9,7 +9,7 @@ static Node* leftChild(Node* node);
 static Node* rightChild(Node* node);
 static Node* paramIdentifier(Node* paramNode);
 static Node* paramType(Node* paramNode);
-static void addSymbolForName(Scope* scope, const char* name, SymKind kind, TypeInfo typeInfo);
+static void addSymbolForName(Scope* scope, const char* name, SymKind kind, TypeInfo typeInfo, int lineno);
 
 static void checkParamList(Node* paramList, Scope* currentScope) {
     for (Node* listNode = paramList; listNode != NULL; listNode = rightChild(listNode)) {
@@ -29,7 +29,7 @@ static void checkParamList(Node* paramList, Scope* currentScope) {
             continue;
         }
 
-        addSymbolForName(currentScope, idNode->value, SYM_PARAM, typeInfoFromNode(typeNode));
+        addSymbolForName(currentScope, idNode->value, SYM_PARAM, typeInfoFromNode(typeNode),listNode->lineno);
     }
 }
 
@@ -51,6 +51,6 @@ static void checkVarList(Node* varList, Scope* currentScope) {
             continue;
         }
 
-        addSymbolForName(currentScope, idNode->value, SYM_VAR, typeInfoFromNode(typeNode));
+        addSymbolForName(currentScope, idNode->value, SYM_VAR, typeInfoFromNode(typeNode),listNode->lineno);
     }
 }
