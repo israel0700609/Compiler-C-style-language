@@ -11,6 +11,8 @@ static Node* paramIdentifier(Node* paramNode);
 static Node* paramType(Node* paramNode);
 static void addSymbolForName(Scope* scope, const char* name, SymKind kind, TypeInfo typeInfo, int lineno);
 
+static void checkNodeSemantics(Node* node, Scope* currentScope);
+
 static void checkParamList(Node* paramList, Scope* currentScope) {
     for (Node* listNode = paramList; listNode != NULL; listNode = rightChild(listNode)) {
         if (strcmp(nodeType(listNode), "PARAM_LIST") != 0) {
@@ -18,18 +20,9 @@ static void checkParamList(Node* paramList, Scope* currentScope) {
         }
 
         Node* paramNode = leftChild(listNode);
-        if (!paramNode || strcmp(nodeType(paramNode), "PARAM") != 0) {
-            continue;
+        if (paramNode) {
+            checkNodeSemantics(paramNode, currentScope);
         }
-
-        Node* idNode = paramIdentifier(paramNode);
-        Node* typeNode = paramType(paramNode);
-
-        if (!idNode || strcmp(nodeType(idNode), "IDENTIFIER") != 0 || !idNode->value) {
-            continue;
-        }
-
-        addSymbolForName(currentScope, idNode->value, SYM_PARAM, typeInfoFromNode(typeNode),listNode->lineno);
     }
 }
 
@@ -40,17 +33,8 @@ static void checkVarList(Node* varList, Scope* currentScope) {
         }
 
         Node* varNode = leftChild(listNode);
-        if (!varNode || strcmp(nodeType(varNode), "VAR_DECL") != 0) {
-            continue;
+        if (varNode) {
+            checkNodeSemantics(varNode, currentScope);
         }
-
-        Node* idNode = leftChild(varNode);
-        Node* typeNode = rightChild(varNode);
-
-        if (!idNode || strcmp(nodeType(idNode), "IDENTIFIER") != 0 || !idNode->value) {
-            continue;
-        }
-
-        addSymbolForName(currentScope, idNode->value, SYM_VAR, typeInfoFromNode(typeNode),listNode->lineno);
     }
 }

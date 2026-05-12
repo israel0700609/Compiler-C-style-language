@@ -45,6 +45,13 @@ void addRightChild(Node *parent, Node *child) {
     parent->right = child;
 }
 
+
+static void addLineNo(Node* node, int lineno){
+  if(node && lineno >= 0){
+    node->lineno = lineno;
+  }
+}
+
 static void printSubtree(Node *node, const char *prefix, int isLast) {
   if (!node)
     return;

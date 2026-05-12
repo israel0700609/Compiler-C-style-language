@@ -161,7 +161,7 @@ type:
     | BOOL    { $$ = createNode("TYPE", "bool"); }
     | REAL    { $$ = createNode("TYPE", "real"); }
     | CHAR    { $$ = createNode("TYPE", "char"); }
-    | STRING '[' INT_LITERAL ']' { char buf[32]; sprintf(buf,"%d",$3); $$ = createNode("STRING_ARRAY_TYPE", buf);}
+    | STRING '[' expression ']' { $$ = createNode("STRING_ARRAY_TYPE", NULL); addLeftChild($$, $3); }
     
     | INTPTR  { $$ = createNode("TYPE", "int*"); }
     | CHARPTR { $$ = createNode("TYPE", "char*"); }
@@ -323,6 +323,8 @@ var_decl_list:
         Node* cloned_type = createNode(original_type->type, original_type->value);
         
         cloned_type->lineno = original_type->lineno;
+        cloned_type->left = original_type->left;
+        cloned_type->right = original_type->right;
 
         Node* id = createNode("VAR_DECL", NULL);
         addLeftChild(id, createNode("IDENTIFIER", $1));

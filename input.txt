@@ -1,7 +1,22 @@
-func mix(a : real; b : bool) return real { return a; }
+func mix(a : real; b : bool) return int { 
+    var i : int;
+    var s:  string[5];
+    s[1] = 's';
+    a = null;
+    for(i = 0; i == 10; i = i + 1)
+    {
+        return 4;
+    }
+
+    if(a < b + 3&& false)
+        return 4;
+ }
+
+
+
 
 proc Main() {
-    var result : real;
-    result = mix(5.3, true) + 5.4;
+    var result : int;
+    result = mix(5.3, true) + 5;
     
 }

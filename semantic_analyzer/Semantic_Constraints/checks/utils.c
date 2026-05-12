@@ -66,6 +66,7 @@ static void addSymbolForName(Scope* scope, const char* name, SymKind kind, TypeI
         }
     }
 
+
     Symbol* symbol = (Symbol*)calloc(1, sizeof(Symbol));
     if (!symbol) {
         fprintf(stderr, "Fatal: Memory allocation failed while creating a symbol.\n");

@@ -3,36 +3,4 @@ Parsed program successfully!
 Success!
 
 === Abstract Syntax Tree ===
-PROGRAM
-`-- Top level
-    |-- FUNCTION
-    |   |-- IDENTIFIER(mix)
-    |   |   |-- PARAM_LIST
-    |   |   |   |-- PARAM
-    |   |   |   |   |-- IDENTIFIER(a)
-    |   |   |   |   `-- TYPE(real)
-    |   |   |   `-- PARAM_LIST
-    |   |   |       `-- PARAM
-    |   |   |           |-- IDENTIFIER(b)
-    |   |   |           `-- TYPE(bool)
-    |   |   `-- TYPE(real)
-    |   `-- RETURN_STTMNT
-    |       `-- IDENTIFIER(a)
-    `-- Top Level
-        `-- PROC
-            |-- IDENTIFIER(Main)
-            `-- BODY
-                |-- VAR_LIST
-                |   `-- VAR_DECL
-                |       |-- IDENTIFIER(result)
-                |       `-- TYPE(real)
-                `-- ASSIGN_STTMNT
-                    |-- IDENTIFIER(result)
-                    `-- ADD
-                        |-- FUNC_CALL
-                        |   |-- IDENTIFIER(mix)
-                        |   `-- ARGUMENTS_LIST
-                        |       |-- REAL_LITERAL(5.3)
-                        |       `-- ARGUMENTS_LIST
-                        |           `-- BOOL_LITERAL(true)
-                        `-- REAL_LITERAL(5.4)
+Semantic Error: 'null' can only be assigned to int*, real*, or char* pointers. line(5)

@@ -113,6 +113,17 @@ static void checkValidIndexType(Node* node, Scope* scope){
     }
 }
 
+static void checkValidString(Node* node, Scope* scope){
+    Node* expr = leftChild(node);
+    checkNodeSemantics(expr,scope);
+
+    TypeInfo sizeType = getExprType(scope,expr);
+
+    if(sizeType.base != VAL_INT && sizeType.base != VAL_UNKNOWN){
+        semanticError("Semantic Error: String size must be of type int.",NULL, node->lineno);
+    }
+}
+
 
 static void checkAssignment(Node* node, Scope* scope) {
     Node* lhsNode = leftChild(node);
@@ -173,7 +184,9 @@ static void checkNodeSemantics(Node* node, Scope* currentScope) {
     if (strcmp(nodeType(node), "VAR_DECL") == 0) {
         Node* idNode = leftChild(node);
         Node* typeNode = rightChild(node);
-
+        if(strcmp(nodeType(typeNode),"STRING_ARRAY_TYPE") == 0){
+            checkValidString(typeNode, currentScope);
+        }
         if (idNode && strcmp(nodeType(idNode), "IDENTIFIER") == 0 && idNode->value) {
             addSymbolForName(currentScope, idNode->value, SYM_VAR, typeInfoFromNode(typeNode), node->lineno);
         }
@@ -183,7 +196,9 @@ static void checkNodeSemantics(Node* node, Scope* currentScope) {
     if (strcmp(nodeType(node), "PARAM") == 0) {
         Node* idNode = leftChild(node);
         Node* typeNode = rightChild(node);
-
+        if(strcmp(nodeType(typeNode),"STRING_ARRAY_TYPE") == 0){
+            checkValidString(typeNode, currentScope);
+        }
         if (idNode && strcmp(nodeType(idNode), "IDENTIFIER") == 0 && idNode->value) {
             addSymbolForName(currentScope, idNode->value, SYM_PARAM, typeInfoFromNode(typeNode), node->lineno);
         }
