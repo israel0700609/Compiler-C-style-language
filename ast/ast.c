@@ -46,7 +46,7 @@ void addRightChild(Node *parent, Node *child) {
 }
 
 
-static void addLineNo(Node* node, int lineno){
+void addLineNo(Node* node, int lineno){
   if(node && lineno >= 0){
     node->lineno = lineno;
   }

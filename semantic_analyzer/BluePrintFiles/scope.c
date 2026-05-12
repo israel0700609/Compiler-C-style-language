@@ -40,7 +40,7 @@ TypeInfo parseType(const char* typeStr) {
 }
 
 int matchTypes(TypeInfo t1, TypeInfo t2) {
-    return ((t1.base == t2.base) && (t1.is_ptr == t2.is_ptr)) || (t1.base == VAL_REAL && t2.base == VAL_INT);
+    return ((t1.base == t2.base) && (t1.is_ptr == t2.is_ptr));
 }
 
 // ---------------------------------------------------------

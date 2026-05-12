@@ -1,22 +1,29 @@
 func mix(a : real; b : bool) return int { 
-    var i : int;
+    var i , x: int;
+    var c : char;
+    var ptr : char*;
     var s:  string[5];
-    s[1] = 's';
-    a = null;
-    for(i = 0; i == 10; i = i + 1)
+    var ptr2 : int*;
+
+    ptr2 = &i;
+    
+    ^(ptr - 3) = (^ptr);
+    s[1 + 1] = 's'; 
+    for(i = 0; i < |s| && b ; i = i + 1)
     {
-        return 4;
+        return |s|;
     }
 
-    if(a < b + 3&& false)
-        return 4;
+    while(1 != 2){
+        var i : int;
+    }
  }
 
 
 
 
 proc Main() {
-    var result : int;
-    result = mix(5.3, true) + 5;
+    var result : real;
+    result = mix(5.3, true) + 5.4;
     
 }

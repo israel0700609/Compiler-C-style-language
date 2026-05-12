@@ -30,9 +30,10 @@ void checkRelationalOp(Scope* scope, Node* node) {
     TypeInfo left  = getExprType(scope, node->left);
     TypeInfo right = getExprType(scope, node->right);
     if (left.base == VAL_UNKNOWN || right.base == VAL_UNKNOWN) return;
-    if ((left.base != VAL_INT && left.base != VAL_REAL) ||
-        (right.base != VAL_INT && right.base != VAL_REAL))
-        semanticError("Semantic Error: Comparison operators '<','<=','>','>=' require int or real operands.", NULL, node->lineno);
+    if (!((left.base == VAL_INT && right.base == VAL_INT) || 
+          (left.base == VAL_REAL && right.base == VAL_REAL))) {
+        semanticError("Semantic Error: Comparison operators '<','<=','>','>=' require both operands to be int, or both operands to be real.", NULL, node->lineno);
+    }
 }
 
 void checkEqualityOp(Scope* scope, Node* node) {

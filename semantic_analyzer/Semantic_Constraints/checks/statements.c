@@ -50,6 +50,7 @@ static void checkBoolCondition(Node* node, Scope* scope){
         semanticError("Semantic Error: must define condition.", NULL, node->lineno); 
     }
     
+    checkNodeSemantics(expr, scope);
     TypeInfo conditionType = getExprType(scope, expr);
     
     if(conditionType.base != VAL_BOOL && conditionType.base != VAL_UNKNOWN){
@@ -76,6 +77,7 @@ static void checkForBoolCondition(Node* node, Scope* scope){
         semanticError("Semantic Error: Missing for loop condition expression.",NULL, node->lineno);
     }
     
+    checkNodeSemantics(expr, scope);
     TypeInfo conditionType = getExprType(scope,expr);
     if(conditionType.base != VAL_BOOL && conditionType.base != VAL_UNKNOWN){
         semanticError("Semantic Error: condition must be of type bool.", NULL, node->lineno);

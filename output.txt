@@ -1,6 +1,0 @@
-Starting Parser...
-Parsed program successfully!
-Success!
-
-=== Abstract Syntax Tree ===
-Semantic Error: 'null' can only be assigned to int*, real*, or char* pointers. line(5)
