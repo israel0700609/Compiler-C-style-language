@@ -1,6 +1,3 @@
-#ifndef SYMBOL_TABLE_H
-#define SYMBOL_TABLE_H
-
 #pragma once
 
 #include <stdlib.h>
@@ -104,5 +101,3 @@ void freeParams(Param* head);
 void freeSymbols(Symbol* head);
 void freeScope(Scope* scope);
 void freeAllScopes(Scope* top);
-
-#endif 

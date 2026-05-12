@@ -141,12 +141,12 @@ TypeInfo getExprType(Scope* scope, Node* node) {
 
     const char* t = node->type;
 
-    if (strcmp(t, "INT_LITERAL") == 0)   { TypeInfo r = {VAL_INT,    0}; return r; }
-    if (strcmp(t, "REAL_LITERAL") == 0)  { TypeInfo r = {VAL_REAL,   0}; return r; }
-    if (strcmp(t, "CHAR_LITERAL") == 0)  { TypeInfo r = {VAL_CHAR,   0}; return r; }
-    if (strcmp(t, "BOOL_LITERAL") == 0)  { TypeInfo r = {VAL_BOOL,   0}; return r; }
-    if (strcmp(t, "STRING_LITERAL") == 0){ TypeInfo r = {VAL_STRING, 0}; return r; }
-    if (strcmp(t, "NULL") == 0)          { TypeInfo r = {VAL_NULL,   0}; return r; }
+    if (strcmp(t, "INT_LITERAL") == 0) { TypeInfo r = {VAL_INT, 0}; return r; }
+    if (strcmp(t, "REAL_LITERAL") == 0) { TypeInfo r = {VAL_REAL, 0}; return r; }
+    if (strcmp(t, "CHAR_LITERAL") == 0) { TypeInfo r = {VAL_CHAR, 0}; return r; }
+    if (strcmp(t, "BOOL_LITERAL") == 0) { TypeInfo r = {VAL_BOOL, 0}; return r; }
+    if (strcmp(t, "STRING_LITERAL") == 0) { TypeInfo r = {VAL_STRING, 0}; return r; }
+    if (strcmp(t, "NULL") == 0) { TypeInfo r = {VAL_NULL, 0}; return r; }
 
     if (strcmp(t, "IDENTIFIER") == 0) {
         Symbol* sym = getVar(scope, node->value);
@@ -164,8 +164,8 @@ TypeInfo getExprType(Scope* scope, Node* node) {
         return sym->type;
     }
 
-    if (strcmp(t, "STRLEN") == 0) { TypeInfo r = {VAL_INT,  0}; return r; }
-    if (strcmp(t, "NOT")    == 0) { TypeInfo r = {VAL_BOOL, 0}; return r; }
+    if (strcmp(t, "STRLEN") == 0) { TypeInfo r = {VAL_INT, 0}; return r; }
+    if (strcmp(t, "NOT") == 0) { TypeInfo r = {VAL_BOOL, 0}; return r; }
 
     if (strcmp(t, "NEG") == 0 || strcmp(t, "POS") == 0)
         return getExprType(scope, node->left);
@@ -194,10 +194,10 @@ TypeInfo getExprType(Scope* scope, Node* node) {
         return r;
     }
 
-    if (strcmp(t, "AND") == 0 || strcmp(t, "OR")  == 0 ||
-        strcmp(t, "GT")  == 0 || strcmp(t, "LT")  == 0 ||
+    if (strcmp(t, "AND") == 0 || strcmp(t, "OR") == 0 ||
+        strcmp(t, "GT") == 0 || strcmp(t, "LT") == 0 ||
         strcmp(t, "GTE") == 0 || strcmp(t, "LTE") == 0 ||
-        strcmp(t, "EQ")  == 0 || strcmp(t, "NEQ") == 0) {
+        strcmp(t, "EQ") == 0 || strcmp(t, "NEQ") == 0) {
         TypeInfo r = {VAL_BOOL, 0}; return r;
     }
 
