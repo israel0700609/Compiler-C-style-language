@@ -24,6 +24,6 @@ func mix(a : real; b : bool) return int {
 
 proc Main() {
     var result : real;
-    result = mix(5.3, true) + 5.4;
+    result = mix(5.3, true) + 5.3;
     
 }
