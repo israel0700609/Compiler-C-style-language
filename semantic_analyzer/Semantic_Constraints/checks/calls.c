@@ -3,7 +3,7 @@
 #include <string.h>
 #include "../../BluePrintFiles/scope.h"
 #include "../../../ast/ast.h"
-
+TypeInfo typeInfoFromNode(Node* node);
 static void checkNodeSemantics(Node* node, Scope* currentScope);
 int foundMainProcedure = 0;
 static const char* nodeType(Node* node);
