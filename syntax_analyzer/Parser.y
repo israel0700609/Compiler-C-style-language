@@ -121,9 +121,7 @@ parameter_list:
 non_empty_param_list:
     IDENTIFIER ',' non_empty_param_list {
         Node* original_type = $3->left->right;
-        Node* cloned_type = createNode(original_type->type, original_type->value);
-        
-        cloned_type->lineno = original_type->lineno;
+        Node* cloned_type = cloneTree(original_type);
 
         Node* param = createNode("PARAM", NULL);
         addLeftChild(param, createNode("IDENTIFIER", $1));
@@ -185,7 +183,21 @@ declarations:
         addLeftChild($$, $1);
         addRightChild($$, $2);
     }
+    |
+    declarations function {
+        $$ = createNode("DECLARATIONS", NULL);
+        addLeftChild($$, $1);
+        addRightChild($$, $2);
+    }
+    |
+    declarations proc {
+        $$ = createNode("DECLARATIONS", NULL);
+        addLeftChild($$, $1);
+        addRightChild($$, $2);
+    }
     | decl_sttmnt { $$ = $1; }
+    | function { $$ = $1; }
+    | proc { $$ = $1; }
     ;
 
 statements:
@@ -207,8 +219,6 @@ statement:
     | for_sttmnt {$$ = $1;}
     | while_sttmnt {$$ = $1;}
     | return_sttmnt {$$ = $1;}
-    | function {$$ = $1;}
-    | proc {$$ = $1;}
     ;
 assign_sttmnt:
     lhs '=' rhs ';'{
@@ -320,11 +330,7 @@ decl_sttmnt:
 var_decl_list:
     IDENTIFIER ',' var_decl_list {
         Node* original_type = $3->left->right;
-        Node* cloned_type = createNode(original_type->type, original_type->value);
-        
-        cloned_type->lineno = original_type->lineno;
-        cloned_type->left = original_type->left;
-        cloned_type->right = original_type->right;
+        Node* cloned_type = cloneTree(original_type);
 
         Node* id = createNode("VAR_DECL", NULL);
         addLeftChild(id, createNode("IDENTIFIER", $1));

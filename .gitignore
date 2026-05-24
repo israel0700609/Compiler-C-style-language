@@ -5,3 +5,4 @@ lex.yy.c
 parser
 compiler
 readme.txt
+output*.txt

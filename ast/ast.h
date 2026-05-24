@@ -15,6 +15,7 @@ typedef struct Node
 extern Node *root;
 
 Node *createNode(const char *type, const char *value);
+Node *cloneTree(Node *node);
 void addLeftChild(Node *parent, Node *child);
 void addRightChild(Node *parent, Node *child);
 void addLineNo(Node * node, int lineno);

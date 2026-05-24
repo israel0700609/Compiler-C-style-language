@@ -3,7 +3,6 @@
 #include <string.h>
 #include "../../BluePrintFiles/scope.h"
 #include "../../../ast/ast.h"
-TypeInfo typeInfoFromNode(Node* node);
 static void checkNodeSemantics(Node* node, Scope* currentScope);
 int foundMainProcedure = 0;
 static const char* nodeType(Node* node);
@@ -11,6 +10,8 @@ static Node* leftChild(Node* node);
 static Node* rightChild(Node* node);
 static int checkSignature(Scope* scope, Node* callNode, Symbol* symTarget, const char** errorMessage);
 static void semanticError(const char* message, const char* name, int lineno);
+TypeInfo typeInfoFromNode(Node* node);
+
 
 static void checkCallTarget(Node* callNode, Scope* currentScope, const char* defaultErrorMessage) {
     Node* idNode = leftChild(callNode);

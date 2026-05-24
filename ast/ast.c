@@ -35,6 +35,18 @@ Node *createNode(const char *type, const char *value) {
   return node;
 }
 
+Node *cloneTree(Node *node) {
+  if (!node)
+    return NULL;
+  Node *clone = createNode(node->type, node->value);
+  if (clone) {
+    clone->lineno = node->lineno;
+    clone->left = cloneTree(node->left);
+    clone->right = cloneTree(node->right);
+  }
+  return clone;
+}
+
 void addLeftChild(Node *parent, Node *child) {
   if (parent)
     parent->left = child;
