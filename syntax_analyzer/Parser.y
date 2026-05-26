@@ -4,6 +4,7 @@
 #include <string.h>
 #include "ast/ast.h"
 #include "semantic_analyzer/Semantic_Constraints/checkSemantics.c"
+#include "ir_generator/three_ac.h"
 
 extern int yylineno;
 extern char* yytext;
@@ -457,12 +458,9 @@ return_sttmnt:
 /* #include "lex.yy.c" */ 
 
 int main() {
-    printf("Starting Parser...\n");
     if (yyparse() == 0) {
-        printf("Success!\n\n");
-        printf("=== Abstract Syntax Tree ===\n");
         runSemanticChecks(root);
-        printTree(root);
+        generate3AC(root, stdout);
         freeTree(root);
     } 
     return 0;
