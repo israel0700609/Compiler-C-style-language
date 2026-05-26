@@ -8,7 +8,19 @@ typedef struct {
     FILE* out;
     int tempCounter;
     int labelCounter;
+    int resolvedLabelCounter;
+    char* buffer;
+    size_t bufferLen;
+    size_t bufferCap;
 } CodegenContext;
+
+typedef struct LabelBinding {
+    char* placeholder;
+    int resolvedId;
+    struct LabelBinding* next;
+} LabelBinding;
+
+static LabelBinding* gLabelBindings = NULL;
 
 static const char* nodeType(Node* node) {
     return (node && node->type) ? node->type : "";
@@ -37,11 +49,175 @@ static char* dupString(const char* s) {
     return out;
 }
 
+static int lookupResolvedLabel(const char* placeholder) {
+    LabelBinding* curr = gLabelBindings;
+    while (curr) {
+        if (strcmp(curr->placeholder, placeholder) == 0) {
+            return curr->resolvedId;
+        }
+        curr = curr->next;
+    }
+    return -1;
+}
+
+static int bindResolvedLabel(CodegenContext* ctx, const char* placeholder) {
+    LabelBinding* item = (LabelBinding*)calloc(1, sizeof(LabelBinding));
+    if (!item) {
+        fprintf(stderr, "Fatal: out of memory while binding labels.\n");
+        exit(1);
+    }
+
+    item->placeholder = dupString(placeholder);
+    item->resolvedId = ++ctx->resolvedLabelCounter;
+    item->next = gLabelBindings;
+    gLabelBindings = item;
+
+    return item->resolvedId;
+}
+
+static void clearResolvedLabels(void) {
+    LabelBinding* curr = gLabelBindings;
+    while (curr) {
+        LabelBinding* next = curr->next;
+        free(curr->placeholder);
+        free(curr);
+        curr = next;
+    }
+    gLabelBindings = NULL;
+}
+
+static void appendToBuffer(CodegenContext* ctx, const char* text) {
+    size_t addLen = strlen(text);
+    size_t needed = ctx->bufferLen + addLen + 1;
+
+    if (needed > ctx->bufferCap) {
+        size_t newCap = ctx->bufferCap ? ctx->bufferCap : 1024;
+        while (newCap < needed) {
+            newCap *= 2;
+        }
+
+        char* grown = (char*)realloc(ctx->buffer, newCap);
+        if (!grown) {
+            fprintf(stderr, "Fatal: out of memory while growing output buffer.\n");
+            exit(1);
+        }
+
+        ctx->buffer = grown;
+        ctx->bufferCap = newCap;
+    }
+
+    memcpy(ctx->buffer + ctx->bufferLen, text, addLen + 1);
+    ctx->bufferLen += addLen;
+}
+
+static void resolveBufferedOutput(CodegenContext* ctx) {
+    const char* text = ctx->buffer ? ctx->buffer : "";
+
+    const char* p = text;
+    while (*p) {
+        const char* start = strstr(p, "__LBL");
+        if (!start) {
+            break;
+        }
+
+        const char* q = start + 5;
+        while (*q >= '0' && *q <= '9') {
+            q++;
+        }
+
+        if (!(q[0] == '_' && q[1] == '_')) {
+            p = start + 1;
+            continue;
+        }
+
+        if (q[2] == ':') {
+            size_t tokenLen = (size_t)((q + 2) - start);
+            char token[64];
+            if (tokenLen >= sizeof(token)) {
+                fprintf(stderr, "Fatal: label token too long.\n");
+                exit(1);
+            }
+
+            memcpy(token, start, tokenLen);
+            token[tokenLen] = '\0';
+
+            if (lookupResolvedLabel(token) < 0) {
+                bindResolvedLabel(ctx, token);
+            }
+        }
+
+        p = q + 2;
+    }
+
+    p = text;
+
+    while (*p) {
+        const char* start = strstr(p, "__LBL");
+        if (!start) {
+            fputs(p, ctx->out);
+            return;
+        }
+
+        fwrite(p, 1, (size_t)(start - p), ctx->out);
+
+        const char* q = start + 5;
+        while (*q >= '0' && *q <= '9') {
+            q++;
+        }
+
+        if (!(q[0] == '_' && q[1] == '_')) {
+            fputc(*start, ctx->out);
+            p = start + 1;
+            continue;
+        }
+
+        size_t tokenLen = (size_t)((q + 2) - start);
+        char token[64];
+        if (tokenLen >= sizeof(token)) {
+            fprintf(stderr, "Fatal: label token too long.\n");
+            exit(1);
+        }
+
+        memcpy(token, start, tokenLen);
+        token[tokenLen] = '\0';
+
+        int id = lookupResolvedLabel(token);
+        if (id < 0) {
+            id = bindResolvedLabel(ctx, token);
+        }
+
+        fprintf(ctx->out, "L%d", id);
+        p = q + 2;
+    }
+}
+
 static void emit(CodegenContext* ctx, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    vfprintf(ctx->out, fmt, args);
+    va_list copy;
+    va_copy(copy, args);
+    int n = vsnprintf(NULL, 0, fmt, copy);
+    va_end(copy);
+
+    if (n < 0) {
+        va_end(args);
+        fprintf(stderr, "Fatal: failed to format output line.\n");
+        exit(1);
+    }
+
+    char* formatted = (char*)malloc((size_t)n + 1);
+    if (!formatted) {
+        va_end(args);
+        fprintf(stderr, "Fatal: out of memory while formatting output line.\n");
+        exit(1);
+    }
+
+    vsnprintf(formatted, (size_t)n + 1, fmt, args);
     va_end(args);
+
+    appendToBuffer(ctx, formatted);
+
+    free(formatted);
 }
 
 static char* newTemp(CodegenContext* ctx) {
@@ -52,7 +228,7 @@ static char* newTemp(CodegenContext* ctx) {
 
 static char* newLabel(CodegenContext* ctx) {
     char buf[32];
-    snprintf(buf, sizeof(buf), "L%d", ++ctx->labelCounter);
+    snprintf(buf, sizeof(buf), "__LBL%d__", ++ctx->labelCounter);
     return dupString(buf);
 }
 
@@ -580,10 +756,20 @@ void generate3AC(Node* root, FILE* out) {
     ctx.out = out;
     ctx.tempCounter = 0;
     ctx.labelCounter = 0;
+    ctx.resolvedLabelCounter = 0;
+    ctx.buffer = NULL;
+    ctx.bufferLen = 0;
+    ctx.bufferCap = 0;
+    clearResolvedLabels();
 
     if (strcmp(nodeType(root), "PROGRAM") == 0) {
         genTopLevel(&ctx, leftChild(root));
     } else {
         genTopLevel(&ctx, root);
     }
+
+    resolveBufferedOutput(&ctx);
+
+    clearResolvedLabels();
+    free(ctx.buffer);
 }

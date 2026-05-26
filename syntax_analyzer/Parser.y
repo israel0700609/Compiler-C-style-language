@@ -65,7 +65,6 @@ program:
         $$ = createNode("PROGRAM", NULL);
         addLeftChild($$, $1);
         root = $$;                       
-        printf("Parsed program successfully!\n");
     }
     ;
 
