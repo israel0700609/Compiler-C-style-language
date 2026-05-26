@@ -263,6 +263,29 @@ static const char* mapBinop(const char* t) {
 
 static char* genExpr(CodegenContext* ctx, Node* expr);
 
+static char* genArrayElementAddress(CodegenContext* ctx, Node* arrayNode) {
+    Node* idNode = leftChild(arrayNode);
+    Node* idxNode = rightChild(arrayNode);
+
+    char* idx = genExpr(ctx, idxNode);
+
+    /* In this grammar, ARRAY_ACCESS is used for string indexing, so element size is 1 byte. */
+    char* elemSize = newTemp(ctx);
+    emit(ctx, "    %s = 1\n", elemSize);
+
+    char* offset = newTemp(ctx);
+    emit(ctx, "    %s = %s * %s\n", offset, elemSize, idx);
+
+    char* addr = newTemp(ctx);
+    emit(ctx, "    %s = %s + %s\n", addr, idNode && idNode->value ? idNode->value : "", offset);
+
+    free(idx);
+    free(elemSize);
+    free(offset);
+
+    return addr;
+}
+
 static int countArgs(Node* args) {
     int count = 0;
     Node* curr = args;
@@ -395,12 +418,10 @@ static char* genExpr(CodegenContext* ctx, Node* expr) {
     }
 
     if (strcmp(t, "ARRAY_ACCESS") == 0) {
-        Node* idNode = leftChild(expr);
-        Node* idxNode = rightChild(expr);
-        char* idx = genExpr(ctx, idxNode);
+        char* addr = genArrayElementAddress(ctx, expr);
         char* tmp = newTemp(ctx);
-        emit(ctx, "    %s = %s[%s]\n", tmp, idNode && idNode->value ? idNode->value : "", idx);
-        free(idx);
+        emit(ctx, "    %s = ^%s\n", tmp, addr);
+        free(addr);
         return tmp;
     }
 
@@ -426,7 +447,12 @@ static char* genExpr(CodegenContext* ctx, Node* expr) {
     }
 
     if (strcmp(t, "ADDR_OF") == 0) {
-        char* inner = genExpr(ctx, leftChild(expr));
+        Node* innerNode = leftChild(expr);
+        if (strcmp(nodeType(innerNode), "ARRAY_ACCESS") == 0) {
+            return genArrayElementAddress(ctx, innerNode);
+        }
+
+        char* inner = genExpr(ctx, innerNode);
         char* tmp = newTemp(ctx);
         emit(ctx, "    %s = &%s\n", tmp, inner);
         free(inner);
@@ -477,11 +503,9 @@ static void genAssign(CodegenContext* ctx, Node* node) {
     if (strcmp(lhsType, "IDENTIFIER") == 0) {
         emit(ctx, "    %s = %s\n", lhs->value ? lhs->value : "", rhsPlace);
     } else if (strcmp(lhsType, "ARRAY_ACCESS") == 0) {
-        Node* idNode = leftChild(lhs);
-        Node* idxNode = rightChild(lhs);
-        char* idx = genExpr(ctx, idxNode);
-        emit(ctx, "    %s[%s] = %s\n", idNode && idNode->value ? idNode->value : "", idx, rhsPlace);
-        free(idx);
+        char* addr = genArrayElementAddress(ctx, lhs);
+        emit(ctx, "    ^%s = %s\n", addr, rhsPlace);
+        free(addr);
     } else if (strcmp(lhsType, "DEREF") == 0) {
         char* ptr = genExpr(ctx, leftChild(lhs));
         emit(ctx, "    ^%s = %s\n", ptr, rhsPlace);
