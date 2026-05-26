@@ -9,9 +9,9 @@ echo "Compiling..."
 gcc lex.yy.c y.tab.c ast/ast.c semantic_analyzer/BluePrintFiles/scope.c ir_generator/three_ac.c -g -o compiler
 echo "Running the compiler and saving the output 3AC to output files"
 
-./compiler < input1.txt > output1.txt
-./compiler < input2.txt > output2.txt
-./compiler < input3.txt > output3.txt 
-./compiler < input4.txt > output4.txt
+./compiler output1.txt < input1.txt
+./compiler output2.txt < input2.txt
+./compiler output3.txt < input3.txt 
+./compiler output4.txt < input4.txt
 
 echo "Compiled"

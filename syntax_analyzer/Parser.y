@@ -457,12 +457,27 @@ return_sttmnt:
 
 /* #include "lex.yy.c" */ 
 
-int main() {
+int main(int argc, char** argv) {
+    FILE* out = stdout;
+
+    if (argc > 1) {
+        out = fopen(argv[1], "w");
+        if (!out) {
+            fprintf(stderr, "Failed to open output file: %s\n", argv[1]);
+            return 1;
+        }
+    }
+
     if (yyparse() == 0) {
         runSemanticChecks(root);
-        generate3AC(root, stdout);
+        generate3AC(root, out);
         freeTree(root);
     } 
+
+    if (out != stdout) {
+        fclose(out);
+    }
+
     return 0;
 }
 
