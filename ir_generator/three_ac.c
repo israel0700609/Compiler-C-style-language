@@ -186,9 +186,16 @@ static char* genExpr(CodegenContext* ctx, Node* expr) {
         return dupString(expr->value ? expr->value : "");
     }
 
-    if (strcmp(t, "INT_LITERAL") == 0 || strcmp(t, "REAL_LITERAL") == 0 || strcmp(t, "CHAR_LITERAL") == 0) {
+    if (strcmp(t, "INT_LITERAL") == 0 || strcmp(t, "REAL_LITERAL") == 0) {
         char* tmp = newTemp(ctx);
         emit(ctx, "    %s = %s\n", tmp, expr->value ? expr->value : "0");
+        return tmp;
+    }
+
+    if (strcmp(t, "CHAR_LITERAL") == 0) {
+        char* tmp = newTemp(ctx);
+        const char* raw = expr->value ? expr->value : "\\0";
+        emit(ctx, "    %s = '%s'\n", tmp, raw);
         return tmp;
     }
 
@@ -498,6 +505,10 @@ static void genStatement(CodegenContext* ctx, Node* node) {
         char* v = genExpr(ctx, leftChild(node));
         emit(ctx, "    Return %s\n", v);
         free(v);
+        return;
+    }
+
+    if (strcmp(t, "FUNCTION") == 0 || strcmp(t, "PROC") == 0) {
         return;
     }
 
