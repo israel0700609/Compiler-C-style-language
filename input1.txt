@@ -7,15 +7,7 @@ var res : bool;
 var x, b : char;
 var y: int;
 b = '&';
-/%1 a = x; %/
-/%2 b = 8; %/
 a = (y * 7)/a-y;
-/%3 a = (y * 7)/b-y; %/
-/%4 a = (y * 7)/a-c; %/
-/%5 res = (b == c) && (y > a); %/
-/%6 res = (b == c) && (y + a); %/
-/%7 3 + 6 = 9; %/
-/%8 ^x = 6; %/
 }
 return res ;
 }
@@ -24,12 +16,9 @@ proc B21(i, j, k, x : int)
 func B31(l, m, n : int) return bool
 {
 var x, j: bool;
-/%9 var n: bool; %/
 var k: char;
 k = '@';
 i = l + l;
-/%10 i = j + 1; %/
-/%11 i = k + 1; %/
 if ((k == '*') || (x != false) && (l + m < i))
 {
 x = l < m;
@@ -40,12 +29,7 @@ return x;
 var x : char;
 var k: bool;
 k = B31(5,i,j);
-/%12 x = B31(5,i,j); %/
-/%13 k = B31(5,i); %/
-/%14 k = B31(5,x,j); %/
 }
-/%15 n = false; %/
-/%16 x = '#'; %/
 x = k;
 }
 func B3(i, j, k : int) return int
@@ -59,7 +43,6 @@ return temp;
 var total : int; /% variable declarations %/
 var bo : bool;
 bo = B1(i,j,k,'^');
-/%17 j = B2(); %/
 total = S2(i+j+k); /% statements %/
 return total;
 }
@@ -108,9 +91,6 @@ var x : char;
 var y : int*;
 var z : char*;
 var g : char;
-/%18 y = &(1+3);
-y = &x;
-z = &(&g); %/
 }
 }
 return 0;

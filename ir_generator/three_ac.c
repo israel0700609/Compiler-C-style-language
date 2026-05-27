@@ -4,22 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
-    FILE* out;
-    int tempCounter;
-    int labelCounter;
-    int resolvedLabelCounter;
-    char* buffer;
-    size_t bufferLen;
-    size_t bufferCap;
-} CodegenContext;
-
-typedef struct LabelBinding {
-    char* placeholder;
-    int resolvedId;
-    struct LabelBinding* next;
-} LabelBinding;
-
 static LabelBinding* gLabelBindings = NULL;
 
 static const char* nodeType(Node* node) {
